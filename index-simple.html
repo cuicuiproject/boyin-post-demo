@@ -2204,5 +2204,24 @@ document.querySelector('#actual-back-analysis')?.closest('.fund-detail-simple-he
  normalize(document);new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(normalize))).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+<script id="persistent-fund-workspace-tabs">
+(function(){
+ const pageBeforePersistentFundTabs=page,openFundBeforePersistentTabs=openSingleFundDetail;
+ state.fundWorkspaceContexts=state.fundWorkspaceContexts||{};
+ const isFundTab=id=>String(id).startsWith('fund::'),fundKey=(spv,code)=>'fund::'+encodeURIComponent(spv)+'::'+encodeURIComponent(code),esc=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+ function removeCanonicalFundTab(){state.workspaceTabs=state.workspaceTabs.filter(tab=>tab.id!=='single-fund-detail')}
+ function renderPersistentTabs(){let bar=document.querySelector('.workspace-tabs');if(!bar)return;const tabs=state.workspaceTabs,closable=tabs.length>1;bar.innerHTML=tabs.map(tab=>{const active=tab.id===state.activeWorkspaceTab?' active':'',close=closable?'<span class="workspace-tab-close" data-close-tab="'+esc(tab.id)+'" role="button" tabindex="0" aria-label="关闭页签 '+esc(tab.label)+'">×</span>':'';return '<button type="button" class="workspace-tab'+active+'" data-tab-id="'+esc(tab.id)+'" '+(isFundTab(tab.id)?'data-fund-tab="true" ':'')+'aria-current="'+(tab.id===state.activeWorkspaceTab?'true':'false')+'">'+esc(tab.label)+close+'</button>'}).join('');bar.querySelectorAll('[data-tab-id]').forEach(button=>button.onclick=event=>{if(event.target.closest('[data-close-tab]'))return;activateTab(button.dataset.tabId)});bar.querySelectorAll('[data-close-tab]').forEach(button=>button.onclick=event=>{event.stopPropagation();closePersistentTab(button.dataset.closeTab)})}
+ function activateFundTab(id){const context=state.fundWorkspaceContexts[id];if(!context)return;state.spv=context.spv;state.start=context.start;state.end=context.end;state.fundCode=context.code;state.workspacePageLabels=state.workspacePageLabels||{};state.workspacePageLabels['single-fund-detail']=context.name;infos['single-fund-detail']=['投后分析',context.name];renderSingleFundDetail(context.code);pageBeforePersistentFundTabs('single-fund-detail');removeCanonicalFundTab();state.activeWorkspaceTab=id;renderPersistentTabs();window.scrollTo(0,0)}
+ function activateTab(id){if(isFundTab(id))activateFundTab(id);else page(id)}
+ function closePersistentTab(id){if(state.workspaceTabs.length<=1)return;const index=state.workspaceTabs.findIndex(tab=>tab.id===id);if(index<0)return;const active=state.activeWorkspaceTab===id;state.workspaceTabs.splice(index,1);if(isFundTab(id))delete state.fundWorkspaceContexts[id];if(!active){renderPersistentTabs();return}const next=state.workspaceTabs[Math.min(index,state.workspaceTabs.length-1)];if(next)activateTab(next.id);else renderPersistentTabs()}
+ page=function(id){if(isFundTab(id)){activateFundTab(id);return}pageBeforePersistentFundTabs(id);renderPersistentTabs()};
+ openSingleFundDetail=function(code){const detail=getFundDetail(state.spv,code,state.start,state.end);if(!detail)return;const context={spv:state.spv,code,start:state.start,end:state.end,name:detail.name},id=fundKey(context.spv,context.code);openFundBeforePersistentTabs(code);removeCanonicalFundTab();state.fundWorkspaceContexts[id]=context;let tab=state.workspaceTabs.find(item=>item.id===id);if(tab)tab.label=context.name;else state.workspaceTabs.push({id,label:context.name});state.activeWorkspaceTab=id;renderPersistentTabs()};
+ window.prototypeApi={...window.prototypeApi,openSingleFundDetail};
+})();
+</script>
+<script id="fund-holdings-workspace-tab-label">
+state.workspacePageLabels=state.workspacePageLabels||{};
+state.workspacePageLabels['fund-detail']='SPV基金持仓';
+</script>
 </body></html>
 
