@@ -1559,7 +1559,7 @@ renderFundDetail=function(code=state.cls||''){
  const section=ensureFundDetailPage();
  const selectedWinds=Array.isArray(view.wind)?view.wind:view.wind&&view.wind!=='all'?[view.wind]:[],windMatch=f=>{if(!selectedWinds.length)return true;const [l1,l2]=actualWindClassification(f);return selectedWinds.includes('l1:'+l1)||selectedWinds.includes('l2:'+l2)},rows=product.funds.map(f=>actualPeriodFund(product,f,view.start,view.end)).filter(f=>(view.type==='all'||f.type===view.type)&&windMatch(f)&&(!view.query||f.code.includes(view.query)||f.name.includes(view.query))),totalReturn=rows.reduce((s,f)=>s+(f.total??0),0),totalTone=totalReturn>0?'return-positive':totalReturn<0?'return-negative':'return-zero';
  section.innerHTML='<div class="fund-detail-simple-head"><h1>SPV基金持仓</h1><button class="btn white" id="actual-back-analysis">返回SPV持仓分析</button></div><div class="panel fund-detail-filter actual-filters"><label class="field">当前SPV<select id="actual-spv">'+spvs.map(s=>'<option value="'+s.id+'" '+(s.id===state.spv?'selected':'')+'>'+actualEscape(spvActualData[s.id]?.name||s.name)+(spvActualData[s.id]?'':'（示例）')+'</option>').join('')+'</select></label><label class="field">期初日期<input type="date" id="actual-start" min="'+product.start+'" max="'+product.end+'" value="'+view.start+'"></label><label class="field">期末日期<input type="date" id="actual-end" min="'+product.start+'" max="'+product.end+'" value="'+view.end+'"></label><label class="field">基金类型<select id="actual-type"><option value="all">全部基金</option><option value="etf">场内ETF/LOF</option><option value="off">场外基金</option></select></label><label class="field wind-detail-field">Wind分类<div id="actual-wind-picker"></div></label><label class="field">基金搜索<input id="actual-query" placeholder="基金代码或基金名称" value="'+actualEscape(view.query)+'"></label><button type="button" class="btn" id="actual-search-button">查询</button><span id="actual-filter-error" role="alert"></span></div><div class="panel"><div class="actual-summary">基金 '+rows.length+' 只 · 区间收益合计 <span class="'+totalTone+'">'+actualNumber(totalReturn)+' 元</span></div><div id="actual-fund-list"></div></div>';
- actualPagedTable(section.querySelector('#actual-fund-list'),['基金代码','基金名称','基金类型','Wind一级分类','Wind二级分类','期初市值（元）','期末市值（元）','期末持有数量','存量持仓涨跌收益（元）','期间买入涨跌收益（元）','期间卖出价差收益（元）','现金分红收益（元）','待核份额差异（元）','区间总收益（元）'],rows.map(f=>['<button class="fund-open-link" data-actual-open="'+f.code+'">'+displayFundCode(f.code,f.type)+'</button>','<button class="fund-open-link" data-actual-open="'+f.code+'">'+actualEscape(f.name)+'</button>',f.type==='off'?'场外基金':'场内ETF/LOF',...actualWindClassification(f),actualNumber(f.open),actualNumber(f.close),actualNumber(f.qty,0),actualNumber(f.hold),actualNumber(f.buy),actualNumber(f.sell),actualNumber(f.div),actualNumber(f.residual),actualNumber(f.total)]),'基金持仓',false);
+ actualPagedTable(section.querySelector('#actual-fund-list'),['基金代码','基金名称','基金类型','Wind一级分类','Wind二级分类','期初市值（元）','期末市值（元）','期末持有数量','存量持仓涨跌收益（元）','期间买入涨跌收益（元）','期间卖出价差收益（元）','现金分红收益（元）','区间总收益（元）'],rows.map(f=>['<button class="fund-open-link" data-actual-open="'+f.code+'">'+displayFundCode(f.code,f.type)+'</button>','<button class="fund-open-link" data-actual-open="'+f.code+'">'+actualEscape(f.name)+'</button>',f.type==='off'?'场外基金':'场内ETF/LOF',...actualWindClassification(f),actualNumber(f.open),actualNumber(f.close),actualNumber(f.qty,0),actualNumber(f.hold),actualNumber(f.buy),actualNumber(f.sell),actualNumber(f.div),actualNumber(f.total)]),'基金持仓',false);
  section.onclick=e=>{const link=e.target.closest('[data-actual-open]');if(link){state.start=view.start;state.end=view.end;openSingleFundDetail(link.dataset.actualOpen)}};
  section.querySelector('#actual-type').value=view.type;
  mountActualWindPicker(section,product,selectedWinds);
@@ -2187,5 +2187,22 @@ renderFundTransactions=function(detail,typeFilter='all',page=1){
 removeDividendTransactionControls();
 </script>
 <style id="demo-data-badge-style">@media(min-width:901px){.side .logo{height:98px}}.demo-data-badge{display:inline-flex;align-items:center;margin-top:5px;padding:2px 9px;border:1px solid #ffcf76;border-radius:999px;background:#ff8a1f;color:#fff7e8;box-shadow:0 4px 12px #ff8a1f45;font-size:11px;font-weight:700;line-height:18px;letter-spacing:.08em}@media(max-width:900px){.side .logo{height:82px}.demo-data-badge{margin-top:3px;padding:1px 8px;line-height:16px}}</style>
+<style id="opening-market-value-neutral">#fund-detail #actual-fund-list .category-fund-table tbody td:nth-child(6){color:var(--ink)!important}</style>
+<script id="remove-fund-holdings-back-button">
+const renderFundDetailWithoutBackButtonBase=renderFundDetail;
+renderFundDetail=function(...args){renderFundDetailWithoutBackButtonBase(...args);const button=document.querySelector('#actual-back-analysis');if(button)button.closest('.fund-detail-simple-head')?.remove()};
+document.querySelector('#actual-back-analysis')?.closest('.fund-detail-simple-head')?.remove();
+</script>
+<script id="unify-income-terminology">
+(function(){
+ const exact=new Map([
+  ['持有收益','存量持仓涨跌收益(元)'],['买入收益','期间买入涨跌收益(元)'],['卖出收益','期间卖出价差收益(元)'],['分红收益','现金分红收益(元)'],
+  ['存量持仓涨跌收益','存量持仓涨跌收益(元)'],['期间买入涨跌收益','期间买入涨跌收益(元)'],['期间卖出价差收益','期间卖出价差收益(元)'],['现金分红收益','现金分红收益(元)'],
+  ['存量持仓涨跌收益（元）','存量持仓涨跌收益(元)'],['期间买入涨跌收益（元）','期间买入涨跌收益(元)'],['期间卖出价差收益（元）','期间卖出价差收益(元)'],['现金分红收益（元）','现金分红收益(元)']
+ ]),oldFormula='持有收益 + 买入收益 + 卖出收益 + 分红收益',newFormula='存量持仓涨跌收益(元) + 期间买入涨跌收益(元) + 期间卖出价差收益(元) + 现金分红收益(元)';
+ function normalize(root){const nodes=[];if(root.nodeType===Node.TEXT_NODE)nodes.push(root);else if(root.nodeType===Node.ELEMENT_NODE||root.nodeType===Node.DOCUMENT_NODE){const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);while(walker.nextNode())nodes.push(walker.currentNode)}nodes.forEach(node=>{const value=node.nodeValue||'',trimmed=value.trim();if(exact.has(trimmed)){const start=value.slice(0,value.indexOf(trimmed)),end=value.slice(value.indexOf(trimmed)+trimmed.length);node.nodeValue=start+exact.get(trimmed)+end}else if(value.includes(oldFormula))node.nodeValue=value.replaceAll(oldFormula,newFormula)})}
+ normalize(document);new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(normalize))).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 </body></html>
 
