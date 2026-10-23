@@ -2223,5 +2223,64 @@ document.querySelector('#actual-back-analysis')?.closest('.fund-detail-simple-he
 state.workspacePageLabels=state.workspacePageLabels||{};
 state.workspacePageLabels['fund-detail']='SPV基金持仓';
 </script>
+<style id="page-export-actions-style">
+.page-export-actions{display:flex;align-items:center;justify-content:flex-end;margin:0 0 12px}.page-export-actions .btn{min-width:104px}
+</style>
+<script id="page-export-actions">
+(function(){
+ function exportFeedback(){toast('导出数据任务已生成')}
+ function mountExportAction(sectionId,buttonId){
+  const section=document.getElementById(sectionId);if(!section)return;
+  let actions=section.querySelector(':scope > .page-export-actions');
+  if(!actions){actions=document.createElement('div');actions.className='page-export-actions';section.prepend(actions)}
+  let button=actions.querySelector('#'+buttonId);
+  if(!button){button=document.createElement('button');button.type='button';button.id=buttonId;button.className='btn primary';button.textContent='导出数据';actions.append(button)}
+  button.onclick=exportFeedback;
+ }
+ function mountPostExport(){mountExportAction('post','export-post-data')}
+ function mountFundExport(){mountExportAction('fund-detail','export-fund-data')}
+ const renderAnalysisWithExportBase=renderAnalysis;
+ renderAnalysis=function(...args){renderAnalysisWithExportBase(...args);mountPostExport()};
+ const renderFundDetailWithExportBase=renderFundDetail;
+ renderFundDetail=function(...args){renderFundDetailWithExportBase(...args);mountFundExport()};
+ mountPostExport();
+ mountFundExport();
+ window.prototypeApi={...window.prototypeApi,renderAnalysis,renderFundDetail};
+})();
+</script>
+<style id="analysis-search-single-line-preview">
+@media(min-width:901px){
+ #post>.analysis-filter-shell{grid-template-columns:minmax(360px,1.55fr) minmax(260px,.9fr) minmax(260px,.9fr) auto!important;align-items:center!important;padding:14px 16px!important;gap:14px!important}
+ #post>.analysis-filter-shell>.filter-unit{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:center;gap:10px;padding:0 14px!important;border-bottom:0!important}
+ #post>.analysis-filter-shell>.filter-unit>label,#post>.analysis-filter-shell>.filter-unit>span{margin:0!important;padding-left:12px;white-space:nowrap;font-size:11px!important}
+ #post>.analysis-filter-shell>.filter-unit>select,#post>.analysis-filter-shell>.filter-unit>input{height:36px!important;margin:0!important}
+ #post>.analysis-filter-shell>#query-analysis{align-self:center!important;height:36px!important;margin:0!important}
+}
+</style>
+<style id="export-button-after-query-style">
+@media(min-width:901px){
+ #post>.analysis-filter-shell{grid-template-columns:minmax(330px,1.55fr) minmax(230px,.9fr) minmax(230px,.9fr) auto auto!important}
+ #post>.analysis-filter-shell>#export-post-data{align-self:center;height:36px;min-width:104px;margin:0}
+ #fund-detail .actual-filters{grid-template-columns:minmax(160px,1.15fr) minmax(115px,.7fr) minmax(115px,.7fr) minmax(120px,.75fr) minmax(135px,.9fr) minmax(165px,1.4fr) 88px 104px!important;gap:12px!important}
+ #fund-detail .actual-filters>#export-fund-data{height:36px;min-width:104px;align-self:end;margin:0;white-space:nowrap}
+}
+</style>
+<script id="export-button-after-query">
+(function(){
+ function moveAfter(queryId,exportId){
+  const query=document.getElementById(queryId),buttons=[...document.querySelectorAll('#'+exportId)],button=buttons.shift();if(!query||!button)return;
+  buttons.forEach(duplicate=>duplicate.remove());
+  query.after(button);
+  document.querySelectorAll('.page-export-actions:empty').forEach(emptyActions=>emptyActions.remove());
+ }
+ function alignExportButtons(){moveAfter('query-analysis','export-post-data');moveAfter('actual-search-button','export-fund-data')}
+ const renderAnalysisExportPositionBase=renderAnalysis;
+ renderAnalysis=function(...args){renderAnalysisExportPositionBase(...args);alignExportButtons()};
+ const renderFundDetailExportPositionBase=renderFundDetail;
+ renderFundDetail=function(...args){renderFundDetailExportPositionBase(...args);alignExportButtons()};
+ alignExportButtons();
+ window.prototypeApi={...window.prototypeApi,renderAnalysis,renderFundDetail};
+})();
+</script>
 </body></html>
 
