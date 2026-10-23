@@ -2282,5 +2282,79 @@ state.workspacePageLabels['fund-detail']='SPV基金持仓';
  window.prototypeApi={...window.prototypeApi,renderAnalysis,renderFundDetail};
 })();
 </script>
+<style id="finance-performance-source-style">
+#single-fund-detail .fund-performance-source{display:inline-flex;align-items:center;margin-left:8px;padding:2px 7px;border-radius:10px;background:#eaf4ff;color:#1769b4;font-size:10px;font-weight:600}
+#single-fund-detail .fund-no-valuation.compact{min-height:245px}
+</style>
+<script id="finance-performance-independent-source">
+(function(){
+ function hasSpvValuation(detail){return detail.daily.some(day=>day.price!=null&&!day.missing)}
+ function financePerformanceDetail(detail){
+  const seed=String(detail.code).split('').reduce((sum,char)=>sum+char.charCodeAt(0),0),days=detail.daily.length?detail.daily:[{date:detail.start},{date:detail.end}];
+  let fundLevel=1,benchmarkLevel=1;
+  const daily=days.map((day,index)=>{
+   if(index){fundLevel*=1+(.035+Math.sin(index*.67+seed)*.12+Math.cos(index*.23+seed)*.055)/100;benchmarkLevel*=1+(.025+Math.sin(index*.51+seed*.7)*.075)/100}
+   return {...day,fundReturn:+((fundLevel-1)*100).toFixed(4),benchmarkReturn:+((benchmarkLevel-1)*100).toFixed(4)};
+  });
+  return {...detail,daily,benchmarkName:'基金合同基准',benchmarkSource:'财汇数据库',benchmarkIsDemo:false};
+ }
+ enhanceFundIntegrity=function(detail){
+  document.querySelectorAll('#single-fund-detail [data-fund-event]').forEach((marker,index)=>{const tx=detail.transactions[index],day=tx&&detail.daily.find(item=>item.date===tx.date);if(!tx||!day||day.missing)marker.remove();else marker.dataset.fundEventId=tx.id});
+  const status=document.getElementById('fund-reconciliation-status');if(status&&Math.abs(detail.reconciliation.difference)>.01)status.textContent='收益构成存在差异 '+money(detail.reconciliation.difference)+' 元 · '+detail.reconciliation.reason;
+ };
+ mountFundChartPerspectives=function(detail){
+  const panel=document.querySelector('#single-fund-detail .fund-performance-panel');if(!panel)return;
+  panel.querySelector('.fund-performance-head')?.remove();
+  const performanceDetail=financePerformanceDetail(detail),valuationAvailable=hasSpvValuation(detail),tabs=document.createElement('div');
+  tabs.className='fund-chart-perspectives';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','收益分析视角');tabs.innerHTML='<button type="button" role="tab" data-fund-chart-view="profit" aria-selected="true">持有盈亏</button><button type="button" role="tab" data-fund-chart-view="performance" aria-selected="false">基金业绩</button>';
+  panel.prepend(tabs);
+  function show(mode){
+   let caption=panel.querySelector('.fund-chart-business-caption');if(!caption){caption=document.createElement('p');caption.className='fund-chart-business-caption';tabs.after(caption)}
+   caption.textContent=mode==='profit'?'持有盈亏：看我们投资这只基金赚亏多少（元）':'基金业绩：看基金本身表现如何（%）';
+   tabs.querySelectorAll('button').forEach(button=>button.setAttribute('aria-selected',String(button.dataset.fundChartView===mode)));
+   panel.querySelector('.holding-profit-summary')?.remove();panel.querySelector('.wide-chart-legend')?.remove();
+   const host=panel.querySelector('.fund-performance-chart');if(!host)return;host.querySelectorAll('.holding-profit-tip,.wide-chart-tooltip').forEach(item=>item.remove());
+   if(mode==='performance'){renderWideFundChart(performanceDetail);return}
+   if(valuationAvailable){renderHoldingProfit(panel,host,detail);return}
+   host.innerHTML='<div class="fund-no-valuation compact"><div><h3>当前区间缺少SPV每日估值</h3><p>持有盈亏依赖SPV估值数据，补传后可计算持仓收益；基金业绩仍可切换查看。</p><button id="supplement-fund-valuation" class="btn">补传估值数据</button></div></div>';
+   document.getElementById('supplement-fund-valuation')?.addEventListener('click',()=>openMissingValuationUpload());
+  }
+  const buttons=[...tabs.querySelectorAll('button')];buttons.forEach((button,index)=>{button.onclick=()=>show(button.dataset.fundChartView);button.onkeydown=event=>{if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();const next=buttons[1-index];show(next.dataset.fundChartView);next.focus()}}});show('profit');
+ };
+ function refreshFinanceMetrics(detail){
+  const metrics=document.querySelectorAll('#single-fund-detail .fund-metric'),performance=financePerformanceDetail(detail),returns=performance.daily.map(day=>day.fundReturn),market=returns.at(-1),dd=returns.length?Math.min(...drawdownSeries(returns.map(value=>100*(1+value/100)))):null;
+  [[metrics[1],market==null?'—':sign(market),market],[metrics[3],dd==null?'—':Math.abs(dd).toFixed(2)+'%',dd]].forEach(([metric,value,num])=>{const strong=metric?.querySelector('strong');if(!strong)return;strong.textContent=value;strong.className=num==null?'':num>0?'up':num<0?'down':''});
+ }
+ const renderSingleFundFinanceBase=renderSingleFundDetail;
+ renderSingleFundDetail=function(code){renderSingleFundFinanceBase(code);const detail=getFundDetail(state.spv,code,state.start,state.end);if(detail)refreshFinanceMetrics(detail)};
+ window.prototypeApi={...window.prototypeApi,renderSingleFundDetail,enhanceFundIntegrity};
+})();
+</script>
+<style id="stable-fund-holdings-header-style">
+@media(min-width:901px){#fund-detail>.fund-detail-filter.stable-fund-filters{grid-template-columns:minmax(220px,1.25fr) minmax(150px,.78fr) minmax(150px,.78fr) minmax(190px,1fr) minmax(155px,.82fr) 88px 104px!important;align-items:end;gap:12px}}
+#fund-detail>.fund-detail-filter.stable-fund-filters>#actual-search-button,#fund-detail>.fund-detail-filter.stable-fund-filters>#export-fund-data{height:36px;min-width:88px;margin:0;align-self:end;white-space:nowrap}
+</style>
+<script id="stable-fund-holdings-header">
+(function(){
+ function normalizeFundHoldingsHeader(){
+  const section=document.getElementById('fund-detail'),filter=section?.querySelector(':scope>.fund-detail-filter');if(!section||!filter)return;
+  section.querySelector(':scope>.fund-detail-simple-head')?.remove();
+  section.querySelector('#back-to-analysis,#actual-back-analysis')?.closest('.fund-detail-simple-head')?.remove();
+  const actions=filter.querySelector('.fund-detail-filter-actions'),legacyQuery=filter.querySelector('#detail-query');
+  filter.querySelector('#detail-reset')?.remove();
+  if(legacyQuery){legacyQuery.id='actual-search-button';filter.append(legacyQuery)}
+  actions?.remove();
+  const query=filter.querySelector('#actual-search-button'),buttons=[...section.querySelectorAll('#export-fund-data')],exportButton=buttons.shift();
+  buttons.forEach(button=>button.remove());
+  if(query&&exportButton)query.after(exportButton);
+  section.querySelectorAll(':scope>.page-export-actions:empty').forEach(toolbar=>toolbar.remove());
+  filter.classList.toggle('stable-fund-filters',filter.querySelectorAll(':scope>.field').length===5);
+ }
+ const renderFundDetailStableHeaderBase=renderFundDetail;
+ renderFundDetail=function(...args){renderFundDetailStableHeaderBase(...args);normalizeFundHoldingsHeader()};
+ normalizeFundHoldingsHeader();
+ window.prototypeApi={...window.prototypeApi,renderFundDetail};
+})();
+</script>
 </body></html>
 
