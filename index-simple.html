@@ -2029,8 +2029,8 @@ function refineIncomeProductHierarchy(){
  const fundControls=fundSection.querySelector('.fund-range-control'),fundGrid=fundSection.querySelector('.fund-summary-grid'),typeRow=result.querySelector(':scope>.type-summary-row')||document.querySelector('.type-summary-row'),fundOptions=typeRow?.querySelector('.fund-type-options');let windSwitch=document.querySelector('.research-wind-switch');
  if(fundOptions&&!fundControls.contains(fundOptions))fundControls.append(fundOptions);
  const countValue=document.getElementById('fund-count'),returnValue=document.getElementById('fund-return-value'),countMetric=countValue?.closest('.metric'),returnMetric=returnValue?.closest('.metric');countMetric?.classList.add('source-fund-metric');returnMetric?.classList.add('source-fund-metric');
- if(countValue&&returnValue){const scope=document.getElementById('metric-fund-scope')?.textContent||'',returnScope=document.getElementById('metric-fund-return-scope')?.textContent||scope;fundGrid.innerHTML='<div class="fund-summary-item"><small>基金持仓数量 <span class="metric-scope">'+scope+'</span></small><strong>'+countValue.textContent+'</strong><span class="fund-summary-note">包含ETF/LOF及场外基金</span></div><div class="fund-summary-item fund-summary-return"><small>基金持仓区间收益金额（元） <span class="metric-scope">'+returnScope+'</span></small><strong class="'+returnValue.className+'">'+returnValue.textContent+'</strong><span class="fund-summary-note">持有收益 + 买入收益 + 卖出收益 + 分红收益</span></div>'}
- let breakdownBridge=fundSection.querySelector(':scope>.income-breakdown-bridge');if(!breakdownBridge){breakdownBridge=document.createElement('div');breakdownBridge.className='income-breakdown-bridge';fundGrid.after(breakdownBridge)}breakdownBridge.innerHTML='<span>拆解为下列4项收益来源</span>';
+ if(countValue&&returnValue){const scope=document.getElementById('metric-fund-scope')?.textContent||'',returnScope=document.getElementById('metric-fund-return-scope')?.textContent||scope,countNote=state.type==='etf'?'仅包含场内ETF/LOF':state.type==='off'?'仅包含场外基金':'包含ETF/LOF及场外基金',holdingRows=spvActualData[state.spv]?.funds||analysis[state.spv]?.f||[],holdingTotal=holdingRows.length||1,etfCount=holdingRows.filter(fund=>fund.type==='etf').length,offCount=holdingRows.filter(fund=>fund.type==='off').length,etfActive=state.type==='etf'?' is-active':'',offActive=state.type==='off'?' is-active':'';fundGrid.innerHTML='<div class="fund-summary-item fund-summary-count"><small>基金持仓数量 <span class="metric-scope">'+scope+'</span></small><strong>'+countValue.textContent+'</strong><span class="fund-summary-note">'+countNote+'</span><div class="holding-type-breakdown"><div class="holding-type-part'+etfActive+'" data-holding-type="etf"><small>场内ETF/LOF</small><strong>'+etfCount+'只</strong><span>'+(etfCount/holdingTotal*100).toFixed(1)+'%</span></div><div class="holding-type-part'+offActive+'" data-holding-type="off"><small>场外基金</small><strong>'+offCount+'只</strong><span>'+(offCount/holdingTotal*100).toFixed(1)+'%</span></div></div></div><div class="fund-summary-item fund-summary-return"><small>基金持仓区间收益金额（元） <span class="metric-scope">'+returnScope+'</span> <span class="metric-info-wrap"><button type="button" class="metric-info" aria-label="查看基金持仓区间收益金额构成">i</button><span class="metric-tooltip">存量持仓涨跌收益(元) + 期间买入涨跌收益(元) + 期间卖出价差收益(元) + 现金分红收益(元)</span></span></small><strong class="'+returnValue.className+'">'+returnValue.textContent+'</strong></div>'}
+ let breakdownBridge=fundSection.querySelector(':scope>.income-breakdown-bridge');if(!breakdownBridge){breakdownBridge=document.createElement('div');breakdownBridge.className='income-breakdown-bridge';fundGrid.after(breakdownBridge)}breakdownBridge.innerHTML='<span>持仓区间收益拆解为下列4项收益来源</span>';
  const source=document.querySelector('.attribution-source-card');if(source&&!fundSection.contains(source))fundSection.append(source);
  let windHead=wind.querySelector(':scope>.wind-product-head');if(!windHead){windHead=document.createElement('div');windHead.className='wind-product-head';wind.prepend(windHead)}
  windHead.innerHTML='<div><h3>按Wind分类看收益</h3></div>';
@@ -2143,10 +2143,11 @@ restoreHoldingsPanelFromBackup();
 </script>
 <script id="sync-spv-holding-counts">
 function syncSpvHoldingCountDisplay(){
- const count=spvHoldingCount(state.spv),source=document.getElementById('fund-count');
+ const rows=spvActualData[state.spv]?.funds||analysis[state.spv]?.f||[],count=state.type==='all'?rows.length:rows.filter(fund=>fund.type===state.type).length,source=document.getElementById('fund-count');
  if(source)source.textContent=count+'只';
- const summary=document.querySelector('#analysis-panel-performance .fund-summary-grid .fund-summary-item:first-child strong');
+ const summaryItem=document.querySelector('#analysis-panel-performance .fund-summary-grid .fund-summary-item:first-child'),summary=summaryItem?.querySelector('strong'),note=summaryItem?.querySelector('.fund-summary-note');
  if(summary)summary.textContent=count+'只';
+ if(note)note.textContent=state.type==='etf'?'仅包含场内ETF/LOF':state.type==='off'?'仅包含场外基金':'包含ETF/LOF及场外基金';
 }
 const syncSpvHoldingCountRenderBase=renderAnalysis;
 renderAnalysis=function(){syncSpvHoldingCountRenderBase();syncSpvHoldingCountDisplay()};
@@ -2354,6 +2355,60 @@ state.workspacePageLabels['fund-detail']='SPV基金持仓';
  renderFundDetail=function(...args){renderFundDetailStableHeaderBase(...args);normalizeFundHoldingsHeader()};
  normalizeFundHoldingsHeader();
  window.prototypeApi={...window.prototypeApi,renderFundDetail};
+})();
+</script>
+<style id="holding-type-breakdown-style">
+.fund-summary-count{display:flex;flex-direction:column;box-sizing:border-box}
+.holding-type-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #dce6ef}
+.holding-type-part{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:end;gap:2px 8px;min-width:0;padding:8px 10px;border:1px solid #e3eaf1;border-radius:7px;background:#f6f9fc}
+.holding-type-part small{grid-column:1/-1;color:#667b90!important;font-size:10px;line-height:1.35}
+.holding-type-part strong{grid-column:1;margin:0!important;color:#173b5a!important;font-size:16px!important;line-height:1.2}
+.holding-type-part>span{grid-column:2;color:#8a9aaa;font-size:9px;line-height:1.4}
+.holding-type-part.is-active{border-color:#8dbce5;background:#eef6fd;box-shadow:inset 3px 0 #1769b4}
+.holding-type-part.is-active small,.holding-type-part.is-active strong{color:#1268b8!important}
+@media(max-width:760px){.holding-type-breakdown{grid-template-columns:1fr}}
+</style>
+<style id="realized-profit-preview-style">
+.fund-summary-return.realized-profit-metric{padding-bottom:14px}
+.realized-profit-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid #dce6ef}
+.realized-profit-part{min-width:0;padding:5px 10px;border-radius:7px;background:#f6f9fc}
+.realized-profit-part small{display:flex;align-items:center;gap:5px;color:#667b90;font-size:10px;line-height:1.35}
+.realized-profit-part strong{display:block!important;margin:2px 0 0!important;font-size:16px!important;line-height:1.15}
+.realized-profit-part .realized-profit-share{display:block;margin-top:1px;color:#8a9aaa;font-size:9px}
+.realized-profit-note{grid-column:1/-1;margin:0;color:#8393a3;font-size:9px;line-height:1.45}
+@media(max-width:760px){.realized-profit-split{grid-template-columns:1fr}.realized-profit-note{grid-column:1}}
+</style>
+<script id="realized-profit-preview-script">
+(function(){
+ function realizedProfitRows(){
+  const rows=filterByType(analysis[cur().id].f);
+  return state.clsArr.length?rows.filter(f=>state.clsArr.includes(f.l1)||state.clsArr.includes(f.l2)):rows;
+ }
+ function realizedProfitTone(value){return value>0?'up':value<0?'down':''}
+ function realizedProfitShare(value,total){return total?Math.abs(value/total*100).toFixed(1)+'%':'—'}
+ function renderRealizedProfitPreview(){
+  const metric=document.querySelector('.fund-summary-return');
+  if(!metric)return;
+  metric.classList.add('realized-profit-metric');
+  let split=metric.querySelector('.realized-profit-split');
+  if(!split){
+   split=document.createElement('div');split.className='realized-profit-split';
+   split.innerHTML='<div class="realized-profit-part"><small>其中含已实现收益 <span class="metric-info-wrap"><button class="metric-info" type="button" aria-label="查看已实现收益构成">i</button><span class="metric-tooltip">卖出价差收益 + 现金分红收益</span></span></small><strong id="realized-profit-value">—</strong><span class="realized-profit-share" id="realized-profit-share"></span></div><div class="realized-profit-part"><small>其中含浮动盈亏 <span class="metric-info-wrap"><button class="metric-info" type="button" aria-label="查看浮动盈亏构成">i</button><span class="metric-tooltip">存量持仓涨跌收益 + 期间买入涨跌收益</span></span></small><strong id="floating-profit-value">—</strong><span class="realized-profit-share" id="floating-profit-share"></span></div><p class="realized-profit-note">持有收益 = 已实现收益 + 浮动盈亏</p>';
+   metric.append(split);
+  }
+  const rows=realizedProfitRows(),realized=rows.reduce((n,f)=>n+f.sell+f.div,0),floating=rows.reduce((n,f)=>n+f.hold+f.buy,0),total=realized+floating;
+  const realizedValue=document.getElementById('realized-profit-value'),floatingValue=document.getElementById('floating-profit-value');
+  realizedValue.textContent=money(realized);realizedValue.className=realizedProfitTone(realized);
+  floatingValue.textContent=money(floating);floatingValue.className=realizedProfitTone(floating);
+  document.getElementById('realized-profit-share').textContent='占比 '+realizedProfitShare(realized,total);
+  document.getElementById('floating-profit-share').textContent='占比 '+realizedProfitShare(floating,total);
+ }
+ window.renderRealizedProfitPreview=renderRealizedProfitPreview;
+ const totalValue=document.getElementById('fund-return-value');
+ if(totalValue)new MutationObserver(renderRealizedProfitPreview).observe(totalValue,{childList:true,characterData:true,subtree:true});
+ requestAnimationFrame(renderRealizedProfitPreview);
+ document.addEventListener('change',()=>requestAnimationFrame(renderRealizedProfitPreview));
+ document.addEventListener('click',()=>requestAnimationFrame(renderRealizedProfitPreview));
 })();
 </script>
 </body></html>
