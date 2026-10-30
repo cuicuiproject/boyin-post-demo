@@ -2752,5 +2752,583 @@ state.workspacePageLabels['fund-detail']='SPV基金持仓';
 })();
 </script>
 <!-- monthly-benchmark-comparison:end -->
+
+
+
+
+
+
+
+<!-- INVESTMENT_MANAGER_ANALYSIS_START -->
+<style>
+  #investment-manager-analysis{padding-bottom:18px;color:#173b5a}
+  .im-shell{background:#fff;border:1px solid #d6e2ee;border-radius:12px;box-shadow:0 6px 18px rgba(28,69,105,.06);overflow:hidden}
+  .im-toolbar{display:grid;grid-template-columns:190px 180px 220px 1fr auto auto;gap:10px;align-items:end;padding:14px 16px;border-bottom:1px solid #dce6ef;background:#f8fafc}
+  .im-field label{display:block;margin:0 0 5px;font-size:12px;color:#60778c}.im-field input,.im-field select,.im-fund-filter{width:100%;height:36px;border:1px solid #cbd9e6;border-radius:6px;background:#fff;color:#183b5a;padding:0 10px;font:14px 'Microsoft YaHei',sans-serif;outline:none}
+  .im-field input:focus,.im-field select:focus,.im-fund-filter:focus{border-color:#2c78b7;box-shadow:0 0 0 2px rgba(44,120,183,.12)}
+  .im-btn{height:36px;padding:0 18px;border:1px solid #c6d5e3;border-radius:6px;background:#fff;color:#244a69;font:600 14px 'Microsoft YaHei',sans-serif;cursor:pointer}.im-btn:hover{border-color:#7da8cc;background:#f4f8fb}.im-btn-primary{border-color:#1769b4;background:#1769b4;color:#fff}.im-btn-primary:hover{background:#125a9b;color:#fff}
+  .im-tabs{display:flex;gap:24px;height:48px;padding:0 18px;border-bottom:1px solid #dce6ef;background:#fff}.im-tab{position:relative;border:0;background:transparent;color:#60778c;font:600 15px 'Microsoft YaHei',sans-serif;cursor:pointer}.im-tab.active{color:#1769b4}.im-tab.active:after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:#1769b4;border-radius:3px 3px 0 0}
+  .im-view{display:none}.im-view.active{display:block}.im-summary{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px;padding:14px 16px;background:#fff}.im-summary-item{min-height:68px;padding:10px 14px;border:1px solid #dce6ef;border-left:3px solid #5f91ba;border-radius:7px;background:#fbfcfe}.im-summary-label{font-size:12px;color:#6a8094}.im-summary-value{margin-top:7px;font-size:21px;font-weight:700;color:#173b5a}.im-summary-value small{font-size:12px;font-weight:400;color:#6a8094;margin-left:4px}
+  .im-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-top:1px solid #e0e8f0}.im-section-title{font-size:15px;font-weight:700;color:#173b5a}.im-section-note{font-size:12px;color:#7890a5}.im-fund-controls{display:flex;align-items:center;gap:8px}.im-fund-filter{width:160px}
+  .im-table-wrap{overflow:auto;max-height:520px;border-top:1px solid #dbe5ee}.im-table{width:100%;min-width:1900px;border-collapse:separate;border-spacing:0;font-size:13px}.im-table th{position:sticky;top:0;z-index:4;height:38px;padding:0 10px;white-space:nowrap;text-align:right;background:#e8f0f8;color:#173b5a;border-right:1px solid #d6e1eb;border-bottom:1px solid #c8d8e7;font-weight:700}.im-table td{height:44px;padding:0 10px;white-space:nowrap;text-align:right;border-right:1px solid #e1e8ef;border-bottom:1px solid #e1e8ef;background:#fff;color:#28475f}.im-table tbody tr:hover td{background:#f5f9fc}.im-table th:first-child,.im-table td:first-child{text-align:left;position:sticky;left:0;z-index:2}.im-table th:nth-child(2),.im-table td:nth-child(2){text-align:left;position:sticky;left:190px;z-index:2}.im-table th:first-child,.im-table th:nth-child(2){z-index:6}.im-table td:first-child,.im-table td:nth-child(2){background:#fff}.im-account-table th:first-child,.im-account-table td:first-child{width:190px;min-width:190px}.im-account-table th:nth-child(2),.im-account-table td:nth-child(2){width:140px;min-width:140px}.im-table .im-group-row td{position:static!important;height:34px;text-align:left!important;background:#f1f6fa!important;color:#315c7e;font-weight:700;border-bottom:1px solid #cadbe9}.im-table .im-subtotal-row td{position:static!important;background:#f8fafc!important;font-weight:700;color:#31536d}.im-table .im-empty td{position:static!important;height:140px;text-align:center!important;color:#7b8fa1;background:#fff!important}.im-enter-spv,.im-link-count{border:0;background:transparent;color:#0968bc;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font:inherit}.im-positive{color:#df3037!important}.im-negative{color:#078765!important}.im-muted{color:#899baa!important}.im-page-foot{padding:11px 16px;color:#70879b;font-size:12px;border-top:1px solid #e0e8f0;background:#fbfcfe}
+  .im-fund-table{min-width:1180px}.im-fund-table th:first-child,.im-fund-table td:first-child{width:140px;min-width:140px}.im-fund-table th:nth-child(2),.im-fund-table td:nth-child(2){left:140px;width:230px;min-width:230px}.im-fund-table th:nth-child(-n+3),.im-fund-table td:nth-child(-n+3){text-align:left}
+  .im-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(16,40,62,.35);padding:24px}.im-modal.show{display:flex}.im-modal-card{width:min(720px,92vw);max-height:78vh;border-radius:10px;background:#fff;box-shadow:0 18px 48px rgba(19,47,71,.24);overflow:hidden}.im-modal-head{display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 18px;border-bottom:1px solid #dce6ef;font-weight:700}.im-modal-close{border:0;background:transparent;font-size:22px;color:#6d8294;cursor:pointer}.im-linked-list{padding:8px 18px 18px;overflow:auto;max-height:58vh}.im-linked-row{display:grid;grid-template-columns:1fr 150px auto;align-items:center;gap:12px;min-height:54px;border-bottom:1px solid #e3eaf0}.im-linked-code{color:#75899a;font-size:12px}.im-tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:4px;background:#edf4fa;color:#315e80;font-size:12px}
+  @media(max-width:1200px){.im-toolbar{grid-template-columns:repeat(3,minmax(150px,1fr)) auto auto}.im-summary{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script>
+(function(){
+  var MANAGERS={
+    'spv-a':'投资经理A','spv-d':'投资经理A','spv-g':'投资经理A',
+    'spv-b':'投资经理B','spv-e':'投资经理B','spv-h':'投资经理B',
+    'spv-c':'投资经理C','spv-f':'投资经理C'
+  };
+  var STRATEGIES={
+    'spv-a':'中长期纯债策略','spv-b':'固收+转债策略','spv-c':'短期纯债策略','spv-d':'权益量化策略',
+    'spv-e':'现金管理策略','spv-f':'多资产策略','spv-g':'利率债策略','spv-h':'权益主动策略'
+  };
+  var imState={manager:'',strategy:'',tab:'account',fundType:''};
+  function money(v){return Number(v||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+  function pct(v){var n=Number(v);if(!isFinite(n))return '—';return (n>0?'+':'')+n.toFixed(2)+'%'}
+  function cls(v){return v>0?'im-positive':v<0?'im-negative':'im-muted'}
+  function hash(s){var h=0;String(s).split('').forEach(function(c){h=(h*31+c.charCodeAt(0))%10000});return h}
+  function drawdown(arr){var val=1,peak=1,min=0;(arr||[]).forEach(function(r){val*=1+Number(r||0)/100;peak=Math.max(peak,val);min=Math.min(min,val/peak-1)});return min*100}
+  function compound(arr){return ((arr||[]).reduce(function(v,r){return v*(1+Number(r||0)/100)},1)-1)*100}
+  function activeSpvs(){return (typeof spvs==='undefined'?[]:spvs).filter(function(s){return s.status!=='offline'})}
+  function accountVM(s,i){
+    var daily=(typeof cockpitSeries==='undefined'?{}:cockpitSeries[s.id]||{}).daily||[];
+    var funds=(typeof analysis==='undefined'?{}:analysis[s.id]||{}).f||[];
+    var net=Number(s.asset||0)/100000000,lev=1.03+(i%5)*.025,total=net*lev,paid=net*(.88+(i%4)*.025);
+    var r7=compound(daily.slice(-7)),r30=compound(daily.slice(-30));
+    var since=Number(s.ret||compound(daily));var ytd=since*(.78+(i%3)*.06);var oneYear=since*(1.36+(i%2)*.08);
+    var dd=drawdown(daily),vol=parseFloat(((typeof cockpitSeries==='undefined'?{}:cockpitSeries[s.id]||{}).vol)||'0')||0;
+    var concentration=0,totalFund=funds.reduce(function(n,f){return n+Math.abs(Number(f.close||0))},0);if(totalFund)concentration=Math.max.apply(null,funds.map(function(f){return Math.abs(Number(f.close||0))}))/totalFund*100;
+    var duration=.8+(i%5)*.72,ytm=1.85+(i%6)*.34,convertible=STRATEGIES[s.id].indexOf('转债')>-1?18.6:(i%3)*2.4;
+    return {id:s.id,name:s.name,code:s.code,manager:MANAGERS[s.id],strategy:STRATEGIES[s.id],nav:Number(s.nav||0),paid:paid,total:total,net:net,ytm:ytm,lev:lev*100,duration:duration,convertible:convertible,r7:r7,r30:r30,ytd:ytd,oneYear:oneYear,since:since,dd30:dd*.58,dd:dd,sharpe:vol?Math.max(.1,since/vol):0,calmar:dd?Math.abs(since/dd):0,dv01:net*duration*100,concentration:concentration,benchmark:(window.spvBenchmarkMap||{})[s.id]||'—'};
+  }
+  function filteredAccounts(){return activeSpvs().map(accountVM).filter(function(x){return(!imState.manager||x.manager===imState.manager)&&(!imState.strategy||x.strategy===imState.strategy)})}
+  function expandedAccounts(){var result=[],counts={'中长期纯债策略':24,'固收+转债策略':31,'短期纯债策略':18,'权益量化策略':27,'现金管理策略':36,'多资产策略':22,'利率债策略':29,'权益主动策略':33};filteredAccounts().forEach(function(base){var total=counts[base.strategy]||24;for(var i=1;i<=total;i++){var item=Object.assign({},base),factor=.78+i*.018,delta=(i-(total+1)/2)*.03,label=String(i).padStart(2,'0');item.name=base.strategy.replace('策略','')+'专户'+label;item.code=base.code+'-'+label;item.nav=Math.max(.85,base.nav+delta/100);item.paid=base.paid*factor;item.total=base.total*factor;item.net=base.net*factor;item.dv01=base.dv01*factor;item.r7=base.r7+delta;item.r30=base.r30+delta*.85;item.ytd=base.ytd+delta*.7;item.oneYear=base.oneYear+delta*.6;item.since=base.since+delta*.5;item.dd30=base.dd30-Math.abs(delta*.08);item.dd=base.dd-Math.abs(delta*.12);item.sharpe=Math.max(.1,base.sharpe+delta*.04);item.calmar=Math.max(.1,base.calmar+delta*.03);item.concentration=Math.min(99,Math.max(1,base.concentration+delta*.2));result.push(item)}});return result}
+  function weighted(rows,key){var den=rows.reduce(function(n,x){return n+x.net},0);return den?rows.reduce(function(n,x){return n+x[key]*x.net},0)/den:0}
+  function accountCells(x,subtotal){
+    var source=subtotal?null:activeSpvs().find(function(s){return s.id===x.id}),start=source&&source.start?source.start:'—';
+    return '<td>'+(subtotal?'策略小计':'<button class="im-enter-spv" data-spv="'+x.id+'">'+x.name+'</button><div class="im-linked-code">'+x.code+'</div>')+'</td><td>'+start+'</td><td>'+x.nav.toFixed(4)+'</td><td>'+money(x.paid)+'</td><td>'+money(x.total)+'</td><td>'+money(x.net)+'</td><td>'+x.ytm.toFixed(2)+'%</td><td>'+x.lev.toFixed(2)+'%</td><td>'+x.duration.toFixed(2)+'</td><td>'+x.convertible.toFixed(2)+'%</td><td class="'+cls(x.r7)+'">'+pct(x.r7)+'</td><td class="'+cls(x.r30)+'">'+pct(x.r30)+'</td><td class="'+cls(x.ytd)+'">'+pct(x.ytd)+'</td><td class="'+cls(x.oneYear)+'">'+pct(x.oneYear)+'</td><td class="'+cls(x.since)+'">'+pct(x.since)+'</td><td class="'+cls(x.dd30)+'">'+pct(x.dd30)+'</td><td class="'+cls(x.dd)+'">'+pct(x.dd)+'</td><td>'+x.sharpe.toFixed(2)+'</td><td>'+x.calmar.toFixed(2)+'</td><td>'+money(x.dv01)+'</td><td>'+x.concentration.toFixed(2)+'%</td>';
+  }
+  function subtotal(rows,strategy){var out={id:'',name:'',code:'',manager:'—',strategy:strategy,nav:weighted(rows,'nav'),paid:0,total:0,net:0,ytm:weighted(rows,'ytm'),lev:weighted(rows,'lev'),duration:weighted(rows,'duration'),convertible:weighted(rows,'convertible'),r7:weighted(rows,'r7'),r30:weighted(rows,'r30'),ytd:weighted(rows,'ytd'),oneYear:weighted(rows,'oneYear'),since:weighted(rows,'since'),dd30:weighted(rows,'dd30'),dd:weighted(rows,'dd'),sharpe:weighted(rows,'sharpe'),calmar:weighted(rows,'calmar'),dv01:0,concentration:weighted(rows,'concentration'),benchmark:'—'};rows.forEach(function(x){out.paid+=x.paid;out.total+=x.total;out.net+=x.net;out.dv01+=x.dv01});return out}
+  function renderAccounts(){
+    var rows=expandedAccounts(),groups={};rows.forEach(function(x){(groups[x.strategy]||(groups[x.strategy]=[])).push(x)});
+    var html='';Object.keys(groups).forEach(function(k){var list=groups[k];html+='<tr class="im-group-row"><td colspan="23">'+k+' <span class="im-section-note">'+list.length+'个账户</span></td></tr>';list.forEach(function(x){html+='<tr data-spv-id="'+x.id+'">'+accountCells(x,false)+'</tr>'});if(list.length>1)html+='<tr class="im-subtotal-row">'+accountCells(subtotal(list,k),true)+'</tr>'});
+    if(!rows.length)html='<tr class="im-empty"><td colspan="23">当前筛选条件下暂无账户数据</td></tr>';
+    document.getElementById('im-account-body').innerHTML=html;
+    var net=rows.reduce(function(n,x){return n+x.net},0),income=rows.reduce(function(n,x){return n+x.net*x.since/100},0);
+    document.getElementById('im-account-summary').innerHTML=summaryHTML([['委外账户',rows.length,'个'],['净资产规模',money(net),'亿元'],['本年收益',pct(weighted(rows,'ytd')),''],['累计收益金额',money(income),'亿元']]);bindDrill();
+  }
+  function fundType(f){var types=['短债基金','中长债基金','可转债基金','二级债基','摊余债基'];return types[hash(f.code||f.name)%types.length]}
+  function fundRows(){var map={};filteredAccounts().forEach(function(a){var list=(typeof analysis==='undefined'?{}:analysis[a.id]||{}).f||[];list.forEach(function(f){var key=f.code||f.name,o=map[key]||(map[key]={code:key,name:f.name,type:fundType(f),scale:0,absolute:0,income:0,spvs:[]});o.scale+=Number(f.close||0);o.absolute+=Number(f.hold||0);o.income+=Number(f.hold||0)+Number(f.buy||0)+Number(f.sell||0)+Number(f.div||0);if(o.spvs.indexOf(a.id)<0)o.spvs.push(a.id)})});return Object.keys(map).map(function(k){var x=map[k],h=hash(k);x.r7=((h%280)-90)/100;x.r30=x.r7*(1.8+(h%7)/10);x.holdRet=x.scale?x.income/x.scale*100:0;x.annual=x.holdRet*(1.9+(h%8)/10);return x}).filter(function(x){return !imState.fundType||x.type===imState.fundType})}
+  function renderFunds(){var rows=fundRows(),groups={};rows.forEach(function(x){(groups[x.type]||(groups[x.type]=[])).push(x)});var html='';Object.keys(groups).forEach(function(k){var list=groups[k];html+='<tr class="im-group-row"><td colspan="10">'+k+' <span class="im-section-note">'+list.length+'只基金</span></td></tr>';list.forEach(function(x){html+='<tr data-fund-code="'+x.code+'"><td>'+x.code+'</td><td>'+x.name+'</td><td>'+x.type+'</td><td>'+money(x.scale)+'</td><td class="'+cls(x.r7)+'">'+pct(x.r7)+'</td><td class="'+cls(x.r30)+'">'+pct(x.r30)+'</td><td class="'+cls(x.absolute)+'">'+money(x.absolute)+'</td><td class="'+cls(x.annual)+'">'+pct(x.annual)+'</td><td class="'+cls(x.income)+'">'+money(x.income)+'</td><td><button class="im-link-count" data-fund="'+x.code+'">'+x.spvs.length+'</button></td></tr>'})});if(!rows.length)html='<tr class="im-empty"><td colspan="10">当前筛选条件下暂无基金数据</td></tr>';
+    document.getElementById('im-fund-body').innerHTML=html;var scale=rows.reduce(function(n,x){return n+x.scale},0),income=rows.reduce(function(n,x){return n+x.income},0);document.getElementById('im-fund-summary').innerHTML=summaryHTML([['基金数量',rows.length,'只'],['持仓规模',money(scale),'元'],['持有收益金额',money(income),'元'],['关联SPV',new Set([].concat.apply([],rows.map(function(x){return x.spvs}))).size,'个']]);
+    document.querySelectorAll('.im-link-count').forEach(function(btn){btn.onclick=function(){openLinked(btn.dataset.fund)}});
+  }
+  function summaryHTML(items){return items.map(function(x){return '<div class="im-summary-item"><div class="im-summary-label">'+x[0]+'</div><div class="im-summary-value">'+x[1]+'<small>'+x[2]+'</small></div></div>'}).join('')}
+  function openLinked(code){var f=fundRows().find(function(x){return x.code===code});if(!f)return;document.getElementById('im-modal-title').textContent=f.name+' · 关联SPV';document.getElementById('im-linked-list').innerHTML=f.spvs.map(function(id){var s=activeSpvs().find(function(x){return x.id===id});return '<div class="im-linked-row"><div><strong>'+s.name+'</strong><div class="im-linked-code">'+s.code+'</div></div><span class="im-tag">'+MANAGERS[id]+'</span><button class="im-btn im-enter-spv" data-spv="'+id+'">进入持仓分析</button></div>'}).join('');document.getElementById('im-linked-modal').classList.add('show');bindDrill()}
+  function bindDrill(){document.querySelectorAll('#investment-manager-analysis .im-enter-spv').forEach(function(btn){btn.onclick=function(){document.getElementById('im-linked-modal').classList.remove('show');if(typeof selectSpv==='function')selectSpv(btn.dataset.spv);else if(typeof page==='function')page('post')}})}
+  function render(){renderAccounts();renderFunds()}
+  function switchTab(tab){imState.tab=tab;document.querySelectorAll('.im-tab').forEach(function(x){x.classList.toggle('active',x.dataset.imTab===tab)});document.getElementById('im-view-account').classList.toggle('active',tab==='account');document.getElementById('im-view-fund').classList.toggle('active',tab==='fund')}
+  function makePage(){var el=document.createElement('section');el.className='page';el.id='page-investment-manager-analysis';el.innerHTML='<div class="im-shell"><div class="im-toolbar"><div class="im-field"><label>数据日期</label><input id="im-date" type="date" value="2026-06-30"></div><div class="im-field"><label>投资经理</label><select id="im-manager"><option value="">全部投资经理</option><option>投资经理A</option><option>投资经理B</option><option>投资经理C</option></select></div><div class="im-field"><label>投资策略</label><select id="im-strategy"><option value="">全部策略</option></select></div><div></div><button class="im-btn" id="im-reset">重置</button><button class="im-btn im-btn-primary" id="im-query">查询</button></div><div class="im-tabs"><button class="im-tab active" data-im-tab="account">委外账户分析</button><button class="im-tab" data-im-tab="fund">基金收益统计</button></div><div id="im-view-account" class="im-view active"><div class="im-summary" id="im-account-summary"></div><div class="im-section-head"><div><div class="im-section-title">委外账户收益与风险指标</div><div class="im-section-note">按投资策略分组，金额单位：亿元；DV01单位：万元/BP</div></div><button class="im-btn" id="im-export-account">导出数据</button></div><div class="im-table-wrap"><table class="im-table im-account-table"><thead><tr><th>SPV账户</th><th>投资策略</th><th>投资经理</th><th>单位净值</th><th>实缴资本</th><th>总资产</th><th>净资产</th><th>组合YTM</th><th>杠杆率</th><th>久期</th><th>转债仓位</th><th>近7日</th><th>近1月</th><th>今年以来</th><th>近1年</th><th>成立以来</th><th>近1月最大回撤</th><th>成立以来最大回撤</th><th>夏普比率</th><th>卡玛比率</th><th>DV01</th><th>单一基金集中度</th><th>业绩基准</th></tr></thead><tbody id="im-account-body"></tbody></table></div><div class="im-page-foot">指标由SPV净值、规模和估值持仓数据自动汇总；正式上线后可替换为数仓接口结果。</div></div><div id="im-view-fund" class="im-view"><div class="im-summary" id="im-fund-summary"></div><div class="im-section-head"><div><div class="im-section-title">基金收益统计</div><div class="im-section-note">按基金类型汇总，可查看关联SPV并穿透至持仓分析</div></div><div class="im-fund-controls"><select id="im-fund-type" class="im-fund-filter"><option value="">全部基金类型</option><option>短债基金</option><option>中长债基金</option><option>可转债基金</option><option>指数基金</option><option>权益基金</option><option>现金管理基金</option></select><button class="im-btn" id="im-export-fund">导出数据</button></div></div><div class="im-table-wrap"><table class="im-table im-fund-table"><thead><tr><th>基金代码</th><th>基金名称</th><th>基金类型</th><th>持仓规模（亿元）</th><th>近7日收益率</th><th>近30日收益率</th><th>持有期收益率</th><th>持有期年化收益率</th><th>收益金额（万元）</th><th>关联SPV数量</th></tr></thead><tbody id="im-fund-body"></tbody></table></div><div class="im-page-foot">同一基金在不同SPV中的持仓自动合并展示，收益金额包含持有、买卖及分红收益。</div></div></div><div class="im-modal" id="im-linked-modal"><div class="im-modal-card"><div class="im-modal-head"><span id="im-modal-title">关联SPV</span><button class="im-modal-close" aria-label="关闭">×</button></div><div class="im-linked-list" id="im-linked-list"></div></div></div>';document.querySelector('.content').appendChild(el)}
+  function normalizeAccountHeader(){var row=document.querySelector('.im-account-table thead tr');if(!row)return;var headers=['账户名称','正式起始运作时间','当日净值','实收资本（亿元）','总资产（亿元）','净资产（亿元）','静态YTM','杠杆','组合行权久期（年）','转债仓位','近7日年化收益率','近1个月年化收益率','今年以来年化收益率','近一年年化收益率','成立以来年化收益率','年初至今最大回撤','自正式运作以来最大回撤','夏普比率','卡玛比率','DV01','单一资产最大占比'];row.innerHTML=headers.map(function(text){return '<th>'+text+'</th>'}).join('')}
+  function makeNav(){var created=document.getElementById('page-investment-manager-analysis');if(created)created.id='investment-manager-analysis';normalizeAccountHeader();var post=document.querySelector('.menu [data-page="post"]');if(!post)return;var a=post.cloneNode(false);a.dataset.page='investment-manager-analysis';a.textContent='投资经理分析';a.classList.remove('active');post.insertAdjacentElement('afterend',a);a.onclick=function(){if(typeof page==='function')page('investment-manager-analysis');render();window.scrollTo(0,0)}}
+  function init(){makePage();makeNav();if(typeof infos!=='undefined')infos['investment-manager-analysis']=['投后分析','投资经理分析'];var sel=document.getElementById('im-strategy');Object.keys(STRATEGIES).map(function(k){return STRATEGIES[k]}).filter(function(v,i,a){return a.indexOf(v)===i}).forEach(function(v){sel.insertAdjacentHTML('beforeend','<option>'+v+'</option>')});document.getElementById('im-query').onclick=function(){imState.manager=document.getElementById('im-manager').value;imState.strategy=document.getElementById('im-strategy').value;render()};document.getElementById('im-reset').onclick=function(){document.getElementById('im-manager').value='';document.getElementById('im-strategy').value='';imState.manager='';imState.strategy='';render()};document.querySelectorAll('.im-tab').forEach(function(b){b.onclick=function(){switchTab(b.dataset.imTab)}});document.getElementById('im-fund-type').onchange=function(){imState.fundType=this.value;renderFunds()};document.getElementById('im-export-account').onclick=function(){if(typeof toast==='function')toast('委外账户分析数据已导出')};document.getElementById('im-export-fund').onclick=function(){if(typeof toast==='function')toast('基金收益统计数据已导出')};document.querySelector('#im-linked-modal .im-modal-close').onclick=function(){document.getElementById('im-linked-modal').classList.remove('show')};document.getElementById('im-linked-modal').onclick=function(e){if(e.target===this)this.classList.remove('show')};render()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<!-- INVESTMENT_MANAGER_ANALYSIS_END -->
+
+
+<!-- TABLE_PAGINATION_SORTING_START -->
+<style>
+  th.sys-sortable-th{cursor:pointer;user-select:none;padding-right:24px!important;position:relative}
+  th.sys-sortable-th:focus-visible{outline:2px solid #2b78b8;outline-offset:-3px}
+  th.sys-sortable-th::after{content:'⇅';position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;color:#8aa0b3;font-weight:400}
+  th.sys-sortable-th[aria-sort="ascending"]::after{content:'↑';color:#1769b4;font-weight:700}
+  th.sys-sortable-th[aria-sort="descending"]::after{content:'↓';color:#1769b4;font-weight:700}
+  .im-pagination{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-height:46px;padding:6px 16px;border-top:1px solid #dce6ef;background:#fff;color:#60778c;font-size:13px}
+  .im-pagination .im-page-info{margin-right:6px}.im-pagination button{min-width:34px;height:30px;padding:0 10px;border:1px solid #cbd9e6;border-radius:5px;background:#fff;color:#31536d;font:13px 'Microsoft YaHei',sans-serif;cursor:pointer}
+  .im-pagination button:hover:not(:disabled){border-color:#5c91bd;color:#1769b4;background:#f4f8fb}.im-pagination button:disabled{cursor:not-allowed;color:#a5b2bd;background:#f6f8fa}.im-pagination .active-page{border-color:#1769b4;background:#1769b4;color:#fff}
+</style>
+<script>
+(function(){
+  var PAGE_SIZE=20,pagers=new Map(),sortingTables=new WeakSet();
+  function sortableText(th){var text=(th.textContent||'').replace(/[⇅↑↓]/g,'').trim();return text&&!/^(操作|说明|详情|展开)$/.test(text)&&Number(th.colSpan||1)===1}
+  function value(text){var raw=String(text||'').trim().replace(/,/g,'');if(!raw||raw==='—'||raw==='-')return {type:0,value:-Infinity};var date=raw.match(/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}$/);if(date)return {type:1,value:new Date(raw.replace(/\//g,'-')).getTime()};var numeric=raw.replace(/[+%￥¥亿元万元万只个日月年BPbp]/g,'').trim();if(/^[-+]?\d+(\.\d+)?$/.test(numeric))return {type:2,value:Number(numeric)};return {type:3,value:raw.toLocaleLowerCase()}}
+  function compare(a,b,dir){var av=value(a),bv=value(b);if(av.type!==bv.type)return (av.type-bv.type)*dir;if(typeof av.value==='number')return (av.value-bv.value)*dir;return av.value.localeCompare(bv.value,'zh-CN',{numeric:true})*dir}
+  function dataRows(tbody){return Array.from(tbody.children).filter(function(r){return r.matches('tr')&&!r.classList.contains('im-group-row')&&!r.classList.contains('im-subtotal-row')&&!r.classList.contains('im-empty')&&r.cells.length>1})}
+  function groupBlocks(tbody){var blocks=[],current=null;Array.from(tbody.children).forEach(function(r){if(r.classList.contains('im-group-row')){current={head:r,rows:[],subtotal:null};blocks.push(current)}else if(r.classList.contains('im-subtotal-row')){if(current)current.subtotal=r}else if(!r.classList.contains('im-empty')){if(current)current.rows.push(r)}});return blocks}
+  function sortTable(table,index,dir){var tbody=table.tBodies[0];if(!tbody)return;var blocks=groupBlocks(tbody);if(blocks.length){blocks.forEach(function(block){block.rows.sort(function(a,b){return compare(a.cells[index]?.innerText,b.cells[index]?.innerText,dir)});block.rows.forEach(function(row){tbody.insertBefore(row,block.subtotal||block.head.nextSibling)});if(block.subtotal)tbody.appendChild(block.subtotal)});var ordered=[];blocks.forEach(function(block){ordered.push(block.head);block.rows.forEach(function(r){ordered.push(r)});if(block.subtotal)ordered.push(block.subtotal)});ordered.forEach(function(r){tbody.appendChild(r)})}else{dataRows(tbody).sort(function(a,b){return compare(a.cells[index]?.innerText,b.cells[index]?.innerText,dir)}).forEach(function(r){tbody.appendChild(r)})}var state=pagers.get(tbody);if(state){state.page=1;applyPage(state)}}
+  function enhanceTable(table){if(sortingTables.has(table)||!table.tHead||!table.tBodies.length)return;var bodyRows=dataRows(table.tBodies[0]);if(bodyRows.length<2)return;var headerRows=Array.from(table.tHead.rows);if(!headerRows.length)return;var row=headerRows[headerRows.length-1];if(headerRows.length>1)return;Array.from(row.cells).forEach(function(th,index){if(!sortableText(th)||index>=bodyRows[0].cells.length)return;th.classList.add('sys-sortable-th');th.tabIndex=0;th.setAttribute('role','button');th.setAttribute('aria-sort','none');th.title='点击排序';function activate(){var current=th.getAttribute('aria-sort');Array.from(row.cells).forEach(function(x){if(x!==th&&x.classList.contains('sys-sortable-th'))x.setAttribute('aria-sort','none')});var next=current==='ascending'?'descending':'ascending';th.setAttribute('aria-sort',next);sortTable(table,index,next==='ascending'?1:-1)}th.addEventListener('click',activate);th.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}})});sortingTables.add(table)}
+  function pageButtons(state,pages){var out='<span class="im-page-info">共 '+state.total+' 条，每页 '+PAGE_SIZE+' 条&nbsp;&nbsp;'+state.page+' / '+pages+'</span><button data-page-action="prev" '+(state.page===1?'disabled':'')+'>上一页</button>';var from=Math.max(1,state.page-2),to=Math.min(pages,from+4);from=Math.max(1,to-4);for(var i=from;i<=to;i++)out+='<button data-page-number="'+i+'" class="'+(i===state.page?'active-page':'')+'">'+i+'</button>';out+='<button data-page-action="next" '+(state.page===pages?'disabled':'')+'>下一页</button>';return out}
+  function applyPage(state){var rows=dataRows(state.tbody);state.total=rows.length;var pages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));state.page=Math.min(Math.max(1,state.page),pages);var begin=(state.page-1)*PAGE_SIZE,endIndex=begin+PAGE_SIZE,visible=new Set(rows.slice(begin,endIndex));rows.forEach(function(r){r.style.display=visible.has(r)?'':'none'});var blocks=groupBlocks(state.tbody);blocks.forEach(function(block){var shown=block.rows.filter(function(r){return visible.has(r)});block.head.style.display=shown.length?'':'none';if(block.subtotal)block.subtotal.style.display=shown.length===block.rows.length&&block.rows.length>1?'':'none'});state.pager.innerHTML=pageButtons(state,pages);state.pager.querySelectorAll('button').forEach(function(b){b.onclick=function(){if(b.dataset.pageAction==='prev')state.page--;else if(b.dataset.pageAction==='next')state.page++;else state.page=Number(b.dataset.pageNumber);applyPage(state)}})}
+  function setupPager(tbody,id){if(!tbody||pagers.has(tbody))return;var wrap=tbody.closest('.im-table-wrap');if(!wrap)return;var pager=document.createElement('div');pager.className='im-pagination';pager.id=id;wrap.insertAdjacentElement('afterend',pager);var state={tbody:tbody,pager:pager,page:1,total:0};pagers.set(tbody,state);new MutationObserver(function(){state.page=1;applyPage(state);enhanceTable(tbody.closest('table'))}).observe(tbody,{childList:true});applyPage(state)}
+  function moveNav(){var item=document.querySelector('[data-page="investment-manager-analysis"]:not(.statistics-nav-view)'),benchmark=document.querySelector('[data-page="benchmark-maintenance"]');if(item&&benchmark&&item.nextElementSibling!==benchmark)benchmark.parentElement.insertBefore(item,benchmark)}
+  function scan(){moveNav();setupPager(document.getElementById('im-account-body'),'im-account-pagination');setupPager(document.getElementById('im-fund-body'),'im-fund-pagination');document.querySelectorAll('table').forEach(enhanceTable)}
+  function init(){scan();var root=document.querySelector('main')||document.body;new MutationObserver(function(){scan()}).observe(root,{childList:true,subtree:true});document.addEventListener('click',function(e){if(e.target.closest('#im-query,#im-reset,.im-tab,#im-fund-type'))setTimeout(scan,0)})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<!-- TABLE_PAGINATION_SORTING_END -->
+
+
+
+
+<!-- FUND_TYPE_TABS_START -->
+<style>
+  #im-fund-type{display:none!important}
+  #im-fund-summary{display:none!important}
+  #im-fund-body .im-group-row{display:none!important}
+  #im-view-fund .im-section-head>div:first-child{display:flex;align-items:center;gap:22px;min-width:0}
+  .im-fund-inline-metrics{display:flex;align-items:center;gap:20px;min-width:0;color:#60778c;font-size:12px;white-space:nowrap}
+  .im-inline-metric{display:inline-flex;align-items:baseline;gap:6px;padding-left:18px;border-left:1px solid #d5e0e9}
+  .im-inline-label{color:#6c8193}.im-inline-value{font-size:14px;font-weight:700;color:#173b5a}.im-inline-unit{font-size:11px;color:#7d91a2}
+  .im-fund-type-tabs{display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid #e0e8f0;border-bottom:1px solid #dce6ef;background:#fbfcfe;overflow-x:auto;scrollbar-width:thin}
+  .im-fund-type-tab{flex:0 0 auto;height:32px;padding:0 14px;border:1px solid var(--tab-border,#c8d8e7);border-radius:5px;background:var(--tab-bg,#eef4f9);color:var(--tab-color,#31536d);font:600 13px 'Microsoft YaHei',sans-serif;cursor:pointer;white-space:nowrap;transition:border-color .15s ease,box-shadow .15s ease}
+  .im-fund-type-tab:hover{border-color:var(--tab-active,#1769b4)}
+  .im-fund-type-tab[aria-selected="true"]{border-color:var(--tab-active,#1769b4);box-shadow:inset 0 -2px 0 var(--tab-active,#1769b4);font-weight:700}
+  .im-fund-type-tab:focus-visible{outline:2px solid #1769b4;outline-offset:2px}
+  .im-fund-type-tab:nth-child(6n+1){--tab-bg:#eef5ff;--tab-border:#bed5f3;--tab-color:#185f9c;--tab-active:#1769b4}
+  .im-fund-type-tab:nth-child(6n+2){--tab-bg:#eefaf8;--tab-border:#b8e5dc;--tab-color:#157266;--tab-active:#199282}
+  .im-fund-type-tab:nth-child(6n+3){--tab-bg:#fff8e9;--tab-border:#efd99a;--tab-color:#8a6512;--tab-active:#d49b18}
+  .im-fund-type-tab:nth-child(6n+4){--tab-bg:#f5f0ff;--tab-border:#d7c5f3;--tab-color:#6843a4;--tab-active:#8056c1}
+  .im-fund-type-tab:nth-child(6n+5){--tab-bg:#fff1f2;--tab-border:#efc7cc;--tab-color:#a13b48;--tab-active:#cf5967}
+  .im-fund-type-tab:nth-child(6n){--tab-bg:#f2f6fa;--tab-border:#cad6e0;--tab-color:#4d667b;--tab-active:#66859f}
+</style>
+<script>
+(function(){
+  function number(text){var value=parseFloat(String(text||'').replace(/,/g,'').replace('%',''));return Number.isFinite(value)?value:0}
+  function percent(value){return (value>0?'+':'')+value.toFixed(2)+'%'}
+  function updateTypeMetrics(){var body=document.getElementById('im-fund-body'),inline=document.getElementById('im-fund-inline-metrics');if(!body||!inline)return;var rows=Array.from(body.querySelectorAll('tr[data-fund-code]')),scale=0,w7=0,w30=0;rows.forEach(function(row){var itemScale=number(row.cells[3]?.textContent),r7=number(row.cells[4]?.textContent),r30=number(row.cells[5]?.textContent);scale+=itemScale;w7+=itemScale*r7;w30+=itemScale*r30});var avg7=scale?w7/scale:0,avg30=scale?w30/scale:0;inline.innerHTML='<span class="im-inline-metric"><span class="im-inline-label">类型持仓规模</span><span class="im-inline-value">'+(scale/100000000).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})+'</span><span class="im-inline-unit">亿元</span></span><span class="im-inline-metric"><span class="im-inline-label">近7日年化收益</span><span class="im-inline-value '+(avg7>=0?'im-positive':'im-negative')+'">'+percent(avg7)+'</span><span class="im-inline-unit">规模加权</span></span><span class="im-inline-metric"><span class="im-inline-label">近30日年化收益</span><span class="im-inline-value '+(avg30>=0?'im-positive':'im-negative')+'">'+percent(avg30)+'</span><span class="im-inline-unit">规模加权</span></span>'}
+  function initFundTypeTabs(){
+    var view=document.getElementById('im-view-fund'),select=document.getElementById('im-fund-type');if(!view||!select||document.getElementById('im-fund-type-tabs'))return;
+    var note=Array.from(view.querySelectorAll('.im-section-note')).find(function(el){return el.textContent.indexOf('按基金类型汇总')>-1});if(note)note.remove();
+    var types=['短债基金','中长债基金','可转债基金','二级债基','摊余债基'];select.innerHTML=types.map(function(type){return '<option value="'+type+'">'+type+'</option>'}).join('');
+    var tabs=document.createElement('div');tabs.id='im-fund-type-tabs';tabs.className='im-fund-type-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','基金类型');
+    types.forEach(function(type,index){var button=document.createElement('button');button.type='button';button.className='im-fund-type-tab';button.textContent=type;button.dataset.fundType=type;button.setAttribute('role','tab');button.setAttribute('aria-selected',index===0?'true':'false');button.onclick=function(){tabs.querySelectorAll('.im-fund-type-tab').forEach(function(x){x.setAttribute('aria-selected',x===button?'true':'false')});select.value=type;select.dispatchEvent(new Event('change',{bubbles:true}))};tabs.appendChild(button)});
+    var headers=Array.from(view.querySelectorAll('.im-fund-table thead th')),excelHeaders=['持仓规模（元）','近7日年化收益','近30日年化收益','持有期绝对收益（元）','持有期年化收益率','持有期收益金额（元）'];excelHeaders.forEach(function(text,index){if(headers[index+3])headers[index+3].textContent=text});
+    var title=view.querySelector('.im-section-title'),inline=document.createElement('div');inline.id='im-fund-inline-metrics';inline.className='im-fund-inline-metrics';title.insertAdjacentElement('afterend',inline);
+    var body=document.getElementById('im-fund-body');if(body)new MutationObserver(function(){updateTypeMetrics()}).observe(body,{childList:true});
+    var sectionHead=view.querySelector('.im-section-head');sectionHead.insertAdjacentElement('beforebegin',tabs);select.value=types[0]||'';select.dispatchEvent(new Event('change',{bubbles:true}));updateTypeMetrics();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(initFundTypeTabs,0)});else setTimeout(initFundTypeTabs,0);
+})();
+</script>
+<!-- FUND_TYPE_TABS_END -->
+
+<!-- ACCOUNT_EXCEL_LAYOUT_START -->
+<style>
+  #im-account-summary{display:none!important}
+  #im-view-account .im-section-head>div:first-child{display:flex;align-items:center;gap:22px;min-width:0}
+  .im-account-inline-metrics{display:flex;align-items:center;gap:20px;min-width:0;color:#60778c;font-size:12px;white-space:nowrap}
+  #im-view-account .im-account-table{min-width:2050px}
+  #im-view-account .im-account-table th:first-child,#im-view-account .im-account-table td:first-child{width:190px;min-width:190px}
+  #im-view-account .im-account-table th:nth-child(2),#im-view-account .im-account-table td:nth-child(2){width:140px;min-width:140px}
+</style>
+<script>
+(function(){
+  function number(text){var value=parseFloat(String(text||'').replace(/,/g,'').replace('%',''));return Number.isFinite(value)?value:0}
+  function percent(value){return (value>0?'+':'')+value.toFixed(2)+'%'}
+  function update(){var body=document.getElementById('im-account-body'),inline=document.getElementById('im-account-inline-metrics');if(!body||!inline)return;var rows=Array.from(body.querySelectorAll('tr[data-spv-id]')),net=0,weighted=0;rows.forEach(function(row){var scale=number(row.cells[5]?.textContent),ytd=number(row.cells[12]?.textContent);net+=scale;weighted+=scale*ytd});var avg=net?weighted/net:0;inline.innerHTML='<span class="im-inline-metric"><span class="im-inline-label">委外账户数</span><span class="im-inline-value">'+rows.length+'</span><span class="im-inline-unit">个</span></span><span class="im-inline-metric"><span class="im-inline-label">净资产总规模</span><span class="im-inline-value">'+net.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})+'</span><span class="im-inline-unit">亿元</span></span><span class="im-inline-metric"><span class="im-inline-label">今年以来年化收益</span><span class="im-inline-value '+(avg>=0?'im-positive':'im-negative')+'">'+percent(avg)+'</span><span class="im-inline-unit">规模加权</span></span>'}
+  function init(){var view=document.getElementById('im-view-account');if(!view||document.getElementById('im-account-inline-metrics'))return;var note=view.querySelector('.im-section-note');if(note)note.remove();var title=view.querySelector('.im-section-title'),inline=document.createElement('div');inline.id='im-account-inline-metrics';inline.className='im-account-inline-metrics';title.insertAdjacentElement('afterend',inline);var body=document.getElementById('im-account-body');if(body)new MutationObserver(update).observe(body,{childList:true});update()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,0)});else setTimeout(init,0);
+})();
+</script>
+<!-- ACCOUNT_EXCEL_LAYOUT_END -->
+
+
+
+
+
+<!-- ACCOUNT_STRATEGY_TABS_START -->
+<style>
+  #im-account-body .im-group-row{display:none!important}
+  .im-toolbar{display:flex;flex-wrap:nowrap;align-items:flex-end}.im-toolbar>.im-field{flex:0 0 220px}.im-toolbar>div:not(.im-field){flex:1 1 auto;min-width:20px}
+  #im-view-account .im-page-foot{display:none!important}
+  .im-account-strategy-tabs{display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid #e0e8f0;border-bottom:1px solid #dce6ef;background:#fbfcfe;overflow-x:auto;scrollbar-width:thin}
+  .im-strategy-tab{flex:0 0 auto;height:32px;padding:0 14px;border:1px solid #c8d8e7;border-radius:5px;background:#f3f7fa;color:#31536d;font:600 13px 'Microsoft YaHei',sans-serif;cursor:pointer;white-space:nowrap}
+  .im-strategy-tab:hover{border-color:#5c91bd;color:#1769b4}.im-strategy-tab[aria-selected="true"]{border-color:#1769b4;background:#eef5ff;color:#1769b4;box-shadow:inset 0 -2px 0 #1769b4;font-weight:700}.im-strategy-tab:focus-visible{outline:2px solid #1769b4;outline-offset:2px}
+</style>
+<script>
+(function(){
+  function selectTab(tabs,button){tabs.querySelectorAll('.im-strategy-tab').forEach(function(item){item.setAttribute('aria-selected',item===button?'true':'false')})}
+  function apply(select,tabs,button){selectTab(tabs,button);select.value=button.dataset.strategy;document.getElementById('im-query').click()}
+  function init(){var view=document.getElementById('im-view-account'),select=document.getElementById('im-strategy');if(!view||!select||document.getElementById('im-account-strategy-tabs'))return;var field=select.closest('.im-field');if(field)field.style.display='none';var strategies=Array.from(select.options).map(function(o){return o.value}).filter(Boolean),tabs=document.createElement('div');tabs.id='im-account-strategy-tabs';tabs.className='im-account-strategy-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','投资策略');strategies.forEach(function(strategy,index){var button=document.createElement('button');button.type='button';button.className='im-strategy-tab';button.textContent=strategy;button.dataset.strategy=strategy;button.setAttribute('role','tab');button.setAttribute('aria-selected',index===0?'true':'false');button.onclick=function(){apply(select,tabs,button)};tabs.appendChild(button)});var head=view.querySelector('.im-section-head');head.insertAdjacentElement('beforebegin',tabs);var first=tabs.querySelector('.im-strategy-tab');if(first)apply(select,tabs,first);document.getElementById('im-reset').addEventListener('click',function(){setTimeout(function(){if(first)apply(select,tabs,first)},0)});var fundTab=document.querySelector('.im-tab[data-im-tab="fund"]'),accountTab=document.querySelector('.im-tab[data-im-tab="account"]');if(fundTab)fundTab.addEventListener('click',function(){setTimeout(function(){select.value='';document.getElementById('im-query').click()},0)});if(accountTab)accountTab.addEventListener('click',function(){setTimeout(function(){var active=tabs.querySelector('[aria-selected="true"]')||first;if(active)apply(select,tabs,active)},0)})}
+  document.addEventListener('click',function(event){var target=event.target.closest('.im-tab');if(!target)return;var select=document.getElementById('im-strategy'),query=document.getElementById('im-query'),tabs=document.getElementById('im-account-strategy-tabs');if(!select||!query)return;if(target.dataset.imTab==='fund'){select.value='';query.click()}else if(target.dataset.imTab==='account'&&tabs){var active=tabs.querySelector('[aria-selected="true"]');if(active){select.value=active.dataset.strategy;query.click()}}},true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,0)});else setTimeout(init,0);
+  function removeAccountFootnote(){var foot=document.querySelector('#im-view-account .im-page-foot');if(foot&&foot.textContent.indexOf('指标由SPV净值、规模和估值持仓数据自动汇总')>-1)foot.remove()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',removeAccountFootnote);else removeAccountFootnote();
+})();
+</script>
+<!-- ACCOUNT_STRATEGY_TABS_END -->
+
+
+<!-- INVESTMENT_DATE_RANGE_START -->
+<style>
+  .im-toolbar>.im-field{display:flex;align-items:center;gap:10px}
+  .im-toolbar>.im-field>label{flex:0 0 auto;margin:0;white-space:nowrap;color:#526b80}
+  .im-toolbar>.im-date-field{flex:0 0 440px}
+  .im-toolbar>.im-manager-field{flex:0 0 300px}
+  .im-date-range{display:grid;grid-template-columns:minmax(130px,1fr) auto minmax(130px,1fr);align-items:center;gap:8px}
+  .im-date-range input{width:100%;height:36px;border:1px solid #cbd9e6;border-radius:6px;background:#fff;color:#183b5a;padding:0 10px;font:14px 'Microsoft YaHei',sans-serif;outline:none}
+  .im-date-range input:focus{border-color:#2c78b7;box-shadow:0 0 0 2px rgba(44,120,183,.12)}
+  .im-date-separator{color:#71879a;font-size:12px}
+</style>
+<script>
+(function(){
+  function init(){var old=document.getElementById('im-date');if(!old||document.getElementById('im-start-date'))return;var field=old.closest('.im-field');field.classList.add('im-date-field');var manager=document.getElementById('im-manager');if(manager)manager.closest('.im-field').classList.add('im-manager-field');var range=document.createElement('div');range.className='im-date-range';var start=document.createElement('input');start.type='date';start.id='im-start-date';start.value='2026-04-30';start.setAttribute('aria-label','开始日期');var separator=document.createElement('span');separator.className='im-date-separator';separator.textContent='至';old.id='im-end-date';old.value='2026-06-30';old.setAttribute('aria-label','结束日期');range.append(start,separator,old);field.appendChild(range);var reset=document.getElementById('im-reset');if(reset)reset.addEventListener('click',function(){start.value='2026-04-30';old.value='2026-06-30'})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<!-- INVESTMENT_DATE_RANGE_END -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- PORTFOLIO_OPERATIONS_START -->
+<style id="portfolio-operations-style">
+#portfolio-operations{padding-bottom:20px;color:#183b59;min-width:0}.po-shell{display:grid;gap:12px;min-width:0}.po-view-tabs{display:flex;align-items:center;gap:6px;padding:7px;border:1px solid #d4e0ea;border-radius:10px;background:#eef3f7}.po-view-tab{height:36px;padding:0 22px;border:1px solid transparent;border-radius:7px;background:transparent;color:#5b7186;font:600 13px "Microsoft YaHei";cursor:pointer}.po-view-tab:hover{background:#fff;color:#154d78}.po-view-tab.active{border-color:#bfd2e2;background:#fff;color:#0d4e82;box-shadow:0 2px 8px #15395412}.po-filterbar{display:flex;align-items:center;gap:18px;padding:11px 16px;border:1px solid #d5e1eb;border-radius:10px;background:#fff}.po-filter-group{display:flex;align-items:center;gap:7px}.po-filter-group>span{color:#6d8194;font-size:11px;white-space:nowrap}.po-segment{display:flex;gap:3px;padding:3px;border:1px solid #d9e3ec;border-radius:7px;background:#f3f6f9}.po-segment button{height:27px;padding:0 11px;border:0;border-radius:5px;background:transparent;color:#536b81;font:600 11px "Microsoft YaHei";cursor:pointer}.po-segment button.active{background:#164d78;color:#fff;box-shadow:0 1px 4px #164d7828}.po-filterbar select,.po-filterbar input,.po-ledger-filters select,.po-ledger-filters input{height:34px;padding:0 10px;box-sizing:border-box;border:1px solid #ccd9e5;border-radius:6px;background:#fff;color:#284963;font:12px "Microsoft YaHei"}.po-cutoff{margin-left:auto;color:#7890a4;font-size:11px;white-space:nowrap}.po-overview{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(580px,2.1fr);border:1px solid #ccdae6;border-radius:10px;background:#fff;overflow:hidden}.po-overview-copy{padding:16px 18px;background:#f4f8fb;border-right:1px solid #d8e3ec}.po-overview-copy h2{margin:0 0 5px;color:#153d60;font-size:17px}.po-overview-copy p{margin:0;color:#71869a;font-size:11px}.po-insights{display:grid;gap:8px;margin-top:14px}.po-insight{display:flex;gap:9px;color:#48647c;font-size:11px;line-height:1.55}.po-insight:before{content:"";width:4px;height:4px;margin-top:6px;flex:0 0 auto;border-radius:50%;background:#1d78bc}.po-kpis{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-items:stretch}.po-kpi{min-width:0;padding:16px 13px;border-right:1px solid #e3eaf0}.po-kpi:last-child{border-right:0}.po-kpi span{display:block;min-height:28px;color:#72869a;font-size:10px;line-height:1.4}.po-kpi strong{display:block;margin-top:3px;color:#173f61;font:700 21px Arial,"Microsoft YaHei"}.po-kpi small{margin-left:3px;color:#7c90a2;font:400 9px "Microsoft YaHei"}.po-kpi .positive{color:#d63c43}.po-kpi .negative{color:#078164}.po-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.po-chart-panel,.po-table-panel,.po-ledger-panel{min-width:0;border:1px solid #d2dee8;border-radius:10px;background:#fff;overflow:hidden}.po-panel-head{display:flex;align-items:center;justify-content:space-between;min-height:47px;padding:0 16px;border-bottom:1px solid #e2e9ef}.po-panel-head h3{margin:0;color:#183f60;font-size:14px}.po-panel-head span{color:#7a8ea1;font-size:10px}.po-chart{height:246px;padding:8px 12px 4px}.po-chart svg{display:block;width:100%;height:100%}.po-gridline{stroke:#e5ebf1;stroke-width:1}.po-axis-label{fill:#7c8fa1;font:10px Arial,"Microsoft YaHei"}.po-chart-title{fill:#31536f;font:600 10px "Microsoft YaHei"}.po-legend{fill:#587085;font:10px "Microsoft YaHei"}.po-table-tabs{display:flex;gap:4px}.po-bottom-tab{height:30px;padding:0 13px;border:1px solid #d4e0ea;border-radius:6px;background:#f4f7fa;color:#60768a;font:600 11px "Microsoft YaHei";cursor:pointer}.po-bottom-tab.active{border-color:#164d78;background:#164d78;color:#fff}.po-table-wrap{width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden}.po-table{width:100%;min-width:1050px;border-collapse:collapse}.po-table th,.po-table td{height:40px;padding:7px 10px;border-right:1px solid #e2e8ee;border-bottom:1px solid #e2e8ee;text-align:right;font-size:11px;white-space:nowrap}.po-table th{height:38px;background:#eaf1f7;color:#315777;font-weight:700}.po-table th:first-child,.po-table td:first-child,.po-table th:nth-child(2),.po-table td:nth-child(2){text-align:left}.po-table tbody tr:nth-child(even){background:#fafcfd}.po-table tbody tr:hover{background:#edf5fb}.po-positive{color:#d53b42}.po-negative{color:#078164}.po-detail-link,.po-account-link{border:0;background:transparent;color:#0867b1;font:600 11px "Microsoft YaHei";cursor:pointer}.po-detail-link:hover,.po-account-link:hover{text-decoration:underline}.po-ledger{display:none;min-width:0}.po-ledger.active{display:block}.po-dashboard.hidden{display:none}.po-ledger-filters{display:grid;grid-template-columns:1.4fr repeat(6,minmax(120px,.75fr)) auto auto;gap:8px;padding:12px 14px;border-bottom:1px solid #e1e8ef}.po-btn{height:34px;padding:0 14px;border:1px solid #cbd8e4;border-radius:6px;background:#fff;color:#405e77;font:600 11px "Microsoft YaHei";cursor:pointer}.po-btn.primary{border-color:#1268bb;background:#1268bb;color:#fff}.po-ledger-summary{padding:8px 15px;border-bottom:1px solid #e4eaf0;background:#f8fafc;color:#6c8296;font-size:11px}.po-ledger-panel .po-table{min-width:1900px}.po-ledger-panel .po-table th{cursor:pointer}.po-sort{margin-left:4px;color:#9bb0c2;font-size:9px}.po-pagination{display:flex;align-items:center;justify-content:flex-end;gap:5px;padding:10px 14px}.po-pagination span{margin-right:8px;color:#71869a;font-size:11px}.po-pagination button{min-width:30px;height:29px;border:1px solid #cedae5;border-radius:5px;background:#fff;color:#4d667c;cursor:pointer}.po-pagination button.active{border-color:#1268bb;background:#1268bb;color:#fff}.po-pagination button:disabled{opacity:.4;cursor:default}@media(max-width:1250px){.po-overview{grid-template-columns:1fr}.po-overview-copy{border-right:0;border-bottom:1px solid #d8e3ec}.po-kpis{grid-template-columns:repeat(4,1fr)}.po-kpi:nth-child(4){border-right:0}.po-filterbar{flex-wrap:wrap}.po-cutoff{margin-left:0}.po-ledger-filters{grid-template-columns:repeat(4,1fr)}}@media(max-width:850px){.po-view-tabs{overflow:auto}.po-view-tab{white-space:nowrap}.po-chart-grid{grid-template-columns:1fr}.po-kpis{grid-template-columns:repeat(2,1fr)}.po-ledger-filters{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script id="portfolio-operations-module">
+(function(){
+ var PO_STRATEGIES=[
+  ['中长期纯债策略',24,'固收','信用策略','中长期纯债'],['固收+转债策略',31,'固收增强','固收+策略','可转债'],['短期纯债策略',18,'固收','信用策略','短债'],['权益量化策略',27,'权益','权益量化策略','量化选股'],['现金管理策略',36,'固收','现金策略','现金管理'],['多资产策略',22,'多资产','主观多资产策略','多资产配置'],['利率债策略',29,'固收','利率策略','利率债'],['权益主动策略',33,'权益','权益多头策略','主动权益']
+ ];
+ var DEPTS=['固定收益部','权益投资部','专户投资部'],MGRS=['投资经理A','投资经理B','投资经理C','投资经理D','投资经理E','投资经理F'],RESEARCHERS=['研究员A','研究员B','研究员C','研究员D','研究员E'],EXT=['华夏基金','南方基金','招商基金','易方达基金','广发基金','嘉实基金','富国基金','汇添富基金'];
+ var BASE=['spv-a','spv-b','spv-c','spv-d'];
+ function buildData(){var out=[],n=0;PO_STRATEGIES.forEach(function(s,si){for(var j=0;j<s[1];j++){n++;var mode=(n%4===0||n%9===0)?'委外':'委内',scale=+(1.1+((n*17)%86)/10).toFixed(2),r1=+(-.22+((n*13+si*7)%115)/100).toFixed(2),r3=+(r1*2.3+((n%7)-3)*.08).toFixed(2),r6=+(r1*4.7+((n%9)-4)*.12).toFixed(2);out.push({baseId:BASE[n%4],id:'BY-SPV-'+String(n).padStart(3,'0'),name:'渤银'+s[4]+'专户'+String(j+1).padStart(2,'0')+'号',dept:DEPTS[(n+si)%DEPTS.length],manager:MGRS[(n+si*2)%MGRS.length],researcher:RESEARCHERS[(n*2+si)%RESEARCHERS.length],leaf:s[0],l1:s[2],l2:s[3],l3:s[4],mode:mode,ext:mode==='委外'?EXT[(n+si)%EXT.length]:'渤银理财',benchmark:s[4].indexOf('权益')>-1||s[4].indexOf('量化')>-1?'中证800全收益指数':s[4].indexOf('可转债')>-1?'中证转债指数':s[4].indexOf('现金')>-1?'一年期银行定期存款利率':'万得中长期纯债型指数',scale:scale,quota:+(scale*(1.12+(n%5)*.04)).toFixed(2),r1:r1,r3:r3,r6:r6,e1:+(r1-.18+((n%5)-2)*.04).toFixed(2),e3:+(r3-.36+((n%5)-2)*.08).toFixed(2),e6:+(r6-.72+((n%5)-2)*.12).toFixed(2),dd:+(-.08-((n*11)%135)/100).toFixed(2)});}});return out}
+ var DATA=buildData();DATA.forEach(function(x,i){x.r12=+(x.r6*1.82+((i%7)-3)*.12).toFixed(2);x.e12=+(x.e6*1.75+((i%5)-2)*.09).toFixed(2)});var S={view:'bank',period:'1',strategy:'',scope:'',bottom:'strategy',page:1,sort:'scale',dir:-1,filters:{q:'',dept:'',manager:'',researcher:'',mode:'',l1:'',l2:'',strategy:'',external:''}};
+ function esc(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]})}
+ function fmt(v,d){return Number(v).toLocaleString('zh-CN',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})}
+ function cls(v){return v>0?'po-positive':v<0?'po-negative':''}
+ function pct(v){return '<span class="'+cls(v)+'">'+(v>0?'+':'')+Number(v).toFixed(2)+'%</span>'}
+ function weighted(rows,key){var den=rows.reduce(function(a,x){return a+x.scale},0);return den?rows.reduce(function(a,x){return a+x.scale*x[key]},0)/den:0}
+ function key(){return 'r'+S.period} function ekey(){return 'e'+S.period}
+ function scoped(){return DATA.filter(function(x){if(S.strategy&&x.leaf!==S.strategy)return false;if(S.view==='department'&&S.scope&&x.dept!==S.scope)return false;if(S.view==='manager'&&S.scope&&x.manager!==S.scope)return false;if(S.view==='researcher'&&S.scope&&x.researcher!==S.scope)return false;return true})}
+ function scopeLabel(){if(S.view==='bank')return '全行';if(S.view==='department')return S.scope||'全部部门';if(S.view==='manager')return S.scope||'全部投资经理';if(S.view==='researcher')return S.scope||'全部研究员';return '全部专户'}
+ function aggregate(rows,field){var m={};rows.forEach(function(x){var k=x[field];if(!m[k])m[k]=[];m[k].push(x)});return Object.keys(m).map(function(k){var a=m[k],scale=a.reduce(function(s,x){return s+x.scale},0);return {name:k,count:a.length,scale:scale,ret:weighted(a,key()),excess:weighted(a,ekey()),win:a.filter(function(x){return x[ekey()]>0}).length/a.length*100,rows:a}}).sort(function(a,b){return b.scale-a.scale})}
+ function lineSvg(series,colors,labels){var W=1000,H=220,L=54,R=24,T=24,B=35,all=[];series.forEach(function(s){all=all.concat(s)});var min=Math.min.apply(null,all.concat([0])),max=Math.max.apply(null,all.concat([1]));var y=function(v){return T+(max-v)/(max-min||1)*(H-T-B)},x=function(i){return L+i*(W-L-R)/(series[0].length-1)};var svg='<svg viewBox="0 0 '+W+' '+H+'" aria-label="趋势图">';for(var g=0;g<5;g++){var yy=T+g*(H-T-B)/4,val=max-g*(max-min)/4;svg+='<line class="po-gridline" x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'"/><text class="po-axis-label" x="'+(L-8)+'" y="'+(yy+3)+'" text-anchor="end">'+val.toFixed(1)+'%</text>'}series.forEach(function(s,si){var pts=s.map(function(v,i){return x(i)+','+y(v)}).join(' ');svg+='<polyline fill="none" stroke="'+colors[si]+'" stroke-width="2.5" points="'+pts+'"/>';s.forEach(function(v,i){svg+='<circle cx="'+x(i)+'" cy="'+y(v)+'" r="2.5" fill="'+colors[si]+'"/>'})});labels.forEach(function(v,i){svg+='<text class="po-axis-label" x="'+x(i)+'" y="'+(H-10)+'" text-anchor="middle">'+v+'</text>'});return svg+'</svg>'}
+ function scaleSvg(rows){
+  var total=rows.reduce(function(s,x){return s+x.scale},0),vals=[.82,.88,.93,.96,.98,1].map(function(k,i){return total*k*(1+((i%2)?-.004:.003))}),W=1000,H=220,L=58,R=24,T=28,B=36,max=Math.max.apply(null,vals)*1.08,centers=vals.map(function(v,i){return L+(i+.5)*(W-L-R)/vals.length}),bar=30;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" aria-label="管理规模走势"><defs><linearGradient id="po-scale-gradient" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#238fc8"/><stop offset="1" stop-color="#176ea9"/></linearGradient></defs>';
+  for(var g=0;g<5;g++){var gy=T+g*(H-T-B)/4;s+='<line class="po-gridline" x1="'+L+'" y1="'+gy+'" x2="'+(W-R)+'" y2="'+gy+'"/><text class="po-axis-label" x="'+(L-7)+'" y="'+(gy+3)+'" text-anchor="end">'+fmt(max*(1-g/4),0)+'</text>'}
+  vals.forEach(function(v,i){var x=centers[i]-bar/2,y=T+(max-v)/max*(H-T-B),h=H-B-y;s+='<rect class="po-scale-bar" x="'+x+'" y="'+y+'" width="'+bar+'" height="'+h+'" rx="3" fill="url(#po-scale-gradient)"/><text class="po-chart-value" x="'+centers[i]+'" y="'+(y-7)+'" text-anchor="middle">'+fmt(v,0)+'</text><text class="po-axis-label" x="'+centers[i]+'" y="'+(H-11)+'" text-anchor="middle">'+['1月','2月','3月','4月','5月','6月'][i]+'</text>'});
+  s+='<polyline class="po-scale-signal" points="'+vals.map(function(v,i){return centers[i]+','+(T+(max-v)/max*(H-T-B))}).join(' ')+'" fill="none" stroke="#20b9cf" stroke-width="2"/>';
+  vals.forEach(function(v,i){var y=T+(max-v)/max*(H-T-B);s+='<circle class="po-scale-node" cx="'+centers[i]+'" cy="'+y+'" r="3.5" fill="#20b9cf" stroke="#fff" stroke-width="1.5"/>'});
+  return s+'</svg>'
+ }
+ function hbarSvg(items,valueKey,color){var W=1000,H=220,L=150,R=78,T=18,B=14,max=Math.max.apply(null,items.map(function(x){return Math.abs(x[valueKey])}).concat([.01])),palette=['#2677b8','#1b9a8a','#7056b8','#d99728','#268eab','#4f6f9f'];var s='<svg viewBox="0 0 '+W+' '+H+'" aria-label="分布图">';items.slice(0,6).forEach(function(a,i){var y=T+i*31,w=Math.abs(a[valueKey])/max*(W-L-R),fill=valueKey==='scale'?palette[i%palette.length]:color;s+='<text class="po-axis-label" x="'+(L-8)+'" y="'+(y+15)+'" text-anchor="end">'+esc(a.name)+'</text><rect x="'+L+'" y="'+(y+3)+'" width="'+w+'" height="17" rx="3" fill="'+fill+'"/><text class="po-axis-label" x="'+(L+w+6)+'" y="'+(y+15)+'">'+(valueKey==='scale'?fmt(a[valueKey],1)+'亿':a[valueKey].toFixed(2)+'%')+'</text>'});return s+'</svg>'}
+ function compareSvg(rows){
+  var groups=aggregate(rows,'leaf'),W=1000,H=220,L=58,R=22,T=42,B=48,colors=['#7440a8','#2f6df2','#ac82c8','#79a1ef'],names=['委内收益','委外收益','委内超额','委外超额'];
+  var items=groups.map(function(group){var ins=group.rows.filter(function(x){return x.mode==='委内'}),outs=group.rows.filter(function(x){return x.mode==='委外'});return {name:group.name,values:[weighted(ins,key()),weighted(outs,key()),weighted(ins,ekey()),weighted(outs,ekey())]}}),all=[];
+  items.forEach(function(item){all=all.concat(item.values)});var min=Math.min.apply(null,all.concat([0])),max=Math.max.apply(null,all.concat([0])),pad=Math.max((max-min)*.12,.04);min-=pad;max+=pad;
+  var y=function(v){return T+(max-v)/(max-min||1)*(H-T-B)},zero=y(0),groupW=(W-L-R)/(items.length||1),barW=Math.min(18,groupW*.16),gap=3;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" aria-label="策略业绩对比图">';
+  names.forEach(function(name,i){var x=L+i*142;s+='<rect x="'+x+'" y="8" width="14" height="8" rx="2" fill="'+colors[i]+'"/><text class="po-legend" x="'+(x+19)+'" y="16">'+name+'</text>'});
+  for(var g=0;g<5;g++){var yy=T+g*(H-T-B)/4,val=max-g*(max-min)/4;s+='<line class="po-gridline" x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'"/><text class="po-axis-label" x="'+(L-7)+'" y="'+(yy+3)+'" text-anchor="end">'+val.toFixed(1)+'%</text>'}
+  s+='<line x1="'+L+'" y1="'+zero+'" x2="'+(W-R)+'" y2="'+zero+'" stroke="#8ca0b2" stroke-width="1.2"/>';
+  items.forEach(function(item,i){var center=L+groupW*(i+.5),start=center-(barW*4+gap*3)/2;item.values.forEach(function(v,j){var yy=y(v),top=Math.min(yy,zero),height=Math.max(1,Math.abs(zero-yy));s+='<rect x="'+(start+j*(barW+gap))+'" y="'+top+'" width="'+barW+'" height="'+height+'" rx="1.5" fill="'+colors[j]+'"/>'});s+='<text class="po-axis-label" x="'+center+'" y="'+(H-13)+'" text-anchor="middle" font-size="8.5">'+esc(item.name)+'</text>'});
+  return s+'</svg>'
+ }
+ function makePage(){var el=document.createElement('section');el.id='portfolio-operations';el.className='page';el.innerHTML='<div class="po-shell"><div class="po-view-tabs"><button class="po-view-tab active" data-view="bank">全行总览</button><button class="po-view-tab" data-view="department">部门总览</button><button class="po-view-tab" data-view="manager">投资经理视角</button><button class="po-view-tab" data-view="all">全部专户</button></div><div class="po-dashboard" id="po-dashboard"><div class="po-filterbar"><div class="po-filter-group"><span>统计区间</span><div class="po-segment po-period"><button class="active" data-period="1">近1月</button><button data-period="3">近3月</button><button data-period="6">近6月</button><button data-period="12">近1年</button></div></div><div class="po-filter-group"><span>策略层级</span><div class="po-segment po-level"><button class="active" data-level="1">一级策略</button><button data-level="2">二级策略</button><button data-level="3">三级策略</button></div></div><div class="po-filter-group" id="po-scope-group" style="display:none"><span id="po-scope-label">范围</span><select id="po-scope-select"></select></div><div class="po-cutoff">数据截至 2026-06-30</div></div><div class="po-overview"><div class="po-overview-copy"><h2 id="po-overview-title">全行专户经营概览</h2><p id="po-overview-sub"></p><div class="po-insights" id="po-insights"></div></div><div class="po-kpis" id="po-kpis"></div></div><div class="po-chart-grid"><section class="po-chart-panel"><div class="po-panel-head"><h3>管理规模走势</h3><span>单位：亿元</span></div><div class="po-chart" id="po-chart-scale"></div></section><section class="po-chart-panel"><div class="po-panel-head"><h3>组合收益走势</h3><span>组合 / 业绩基准 / 超额</span></div><div class="po-chart" id="po-chart-return"></div></section><section class="po-chart-panel"><div class="po-panel-head"><h3>策略规模分布</h3><span id="po-chart-level">一级策略</span></div><div class="po-chart" id="po-chart-dist"></div></section><section class="po-chart-panel"><div class="po-panel-head"><h3>策略业绩对比</h3><span>收益 / 超额 · 规模加权</span></div><div class="po-chart" id="po-chart-mode"></div></section></div><section class="po-table-panel"><div class="po-panel-head"><div class="po-table-tabs"><button class="po-bottom-tab active" data-bottom="strategy">策略表现</button><button class="po-bottom-tab" data-bottom="external">委外管理人表现</button><button class="po-bottom-tab" data-bottom="manager">投资经理表现</button></div><span>点击查看明细可进入全部专户</span></div><div class="po-table-wrap"><table class="po-table"><thead id="po-summary-head"></thead><tbody id="po-summary-body"></tbody></table></div></section></div><div class="po-ledger" id="po-ledger"><section class="po-ledger-panel"><div class="po-ledger-filters"><input id="po-q" placeholder="搜索专户代码或名称"><select id="po-dept"></select><select id="po-manager"></select><select id="po-researcher"></select><select id="po-mode"><option value="">全部管理方式</option><option>委内</option><option>委外</option></select><select id="po-l1"></select><select id="po-l2"></select><button class="po-btn" id="po-reset">重置</button><button class="po-btn primary" id="po-query">查询</button></div><div class="po-ledger-summary" id="po-ledger-summary"></div><div class="po-table-wrap"><table class="po-table"><thead><tr><th>序号</th><th data-sort="id">专户代码<span class="po-sort">↕</span></th><th data-sort="name">专户名称<span class="po-sort">↕</span></th><th data-sort="dept">投资部门<span class="po-sort">↕</span></th><th data-sort="manager">投资经理<span class="po-sort">↕</span></th><th>研究员</th><th>投资策略</th><th>二级策略</th><th>三级策略</th><th>管理方式</th><th>管理人</th><th>业绩比较基准</th><th data-sort="scale">规模(亿元)<span class="po-sort">↕</span></th><th>批复额度(亿元)</th><th data-sort="ret">区间收益(%)<span class="po-sort">↕</span></th><th data-sort="excess">区间超额(%)<span class="po-sort">↕</span></th><th data-sort="dd">最大回撤(%)<span class="po-sort">↕</span></th></tr></thead><tbody id="po-ledger-body"></tbody></table></div><div class="po-pagination"></div></section></div></div>';document.querySelector('.content').appendChild(el)}
+ function unique(field){if(field==='dept')return DEPTS.slice();return Array.from(new Set(DATA.map(function(x){return x[field]}))).sort()}
+ function options(id,field,label){var el=document.getElementById(id);el.innerHTML='<option value="">全部'+label+'</option>'+unique(field).map(function(v){return '<option>'+esc(v)+'</option>'}).join('')}
+ function renderScope(){var group=document.getElementById('po-scope-group'),sel=document.getElementById('po-scope-select'),map={department:['dept','部门'],manager:['manager','投资经理'],researcher:['researcher','研究员']},cfg=map[S.view];if(!cfg){group.style.display='none';return}group.style.display='flex';document.getElementById('po-scope-label').textContent=cfg[1];var vals=unique(cfg[0]);if(!S.scope||vals.indexOf(S.scope)<0)S.scope=vals[0];sel.innerHTML=vals.map(function(v){return '<option'+(v===S.scope?' selected':'')+'>'+esc(v)+'</option>'}).join('')}
+ function renderDashboard(){renderScope();var rows=scoped(),strategyLabel=S.strategy||'全部策略',ag=aggregate(rows,'leaf'),scale=rows.reduce(function(s,x){return s+x.scale},0),ret=weighted(rows,key()),ex=weighted(rows,ekey()),ins=rows.filter(function(x){return x.mode==='委内'}),outs=rows.filter(function(x){return x.mode==='委外'}),best=ag[0]||{name:'-',ret:0},win=rows.filter(function(x){return x[ekey()]>0}).length/(rows.length||1)*100;document.getElementById('po-overview-title').textContent=scopeLabel()+'专户经营概览';document.getElementById('po-overview-sub').textContent='基于'+rows.length+'个专户的规模、净值和业绩基准进行'+strategyLabel+'统一分析';document.getElementById('po-insights').innerHTML='<div class="po-insight">管理规模较期初增长约 '+(3.6+S.period*.8).toFixed(1)+'%，整体规模保持稳健。</div><div class="po-insight">'+S.period+'个月组合收益 '+ret.toFixed(2)+'%，超额收益 '+ex.toFixed(2)+'%。</div><div class="po-insight">当前分析范围为 '+strategyLabel+'，重点关注规模集中度与回撤变化。</div><div class="po-insight">委外专户 '+outs.length+' 个，可穿透查看管理人与单账户表现。</div>';
+  var ks=[['管理专户',rows.length,'个',''],['管理规模',fmt(scale,1),'亿元',''],['委内规模',fmt(ins.reduce(function(s,x){return s+x.scale},0),1),'亿元',''],['委外规模',fmt(outs.reduce(function(s,x){return s+x.scale},0),1),'亿元',''],['组合收益',ret.toFixed(2),'%',cls(ret)],['组合超额',ex.toFixed(2),'%',cls(ex)],['跑赢基准占比',win.toFixed(1),'%',win>=50?'positive':'negative']];document.getElementById('po-kpis').innerHTML=ks.map(function(k){return '<div class="po-kpi"><span>'+k[0]+'</span><strong class="'+k[3]+'">'+k[1]+'<small>'+k[2]+'</small></strong></div>'}).join('');
+  document.getElementById('po-chart-scale').innerHTML=scaleSvg(rows);var labels=['期初','第1周','第2周','第3周','期末'],base=ret*.55,portfolio=[0,base*.35,base*.62,base*.83,ret],bench=[0,base*.28,base*.5,base*.69,ret-ex],extra=portfolio.map(function(v,i){return v-bench[i]});document.getElementById('po-chart-return').innerHTML=lineSvg([portfolio,bench,extra],['#54cbe8','#b8c6d2','#eda12b'],labels);document.getElementById('po-chart-dist').innerHTML=hbarSvg(ag,'scale','#2c83c5');document.getElementById('po-chart-mode').innerHTML=compareSvg(rows);document.getElementById('po-chart-level').textContent='投资策略';renderSummary(rows)}
+  function emptyFilters(){return {q:'',dept:'',manager:'',researcher:'',mode:'',l1:'',l2:'',strategy:'',external:''}}
+  function openLedger(criteria){S.view='all';S.filters=Object.assign(emptyFilters(),criteria||{});S.page=1;syncViews();syncFilterInputs();renderLedger()}
+  function renderSummary(rows){var field=S.bottom==='strategy'?'leaf':S.bottom==='external'?'ext':'manager',title=S.bottom==='strategy'?'投资策略':S.bottom==='external'?'管理人':'投资经理',set=S.bottom==='external'?rows.filter(function(x){return x.mode==='委外'}):rows,ag=aggregate(set,field),total=set.reduce(function(s,x){return s+x.scale},0);document.getElementById('po-summary-head').innerHTML='<tr><th>序号</th><th>'+title+'</th><th>专户数量</th><th>管理规模(亿元)</th><th>规模占比</th><th>区间收益</th><th>区间超额</th><th>跑赢基准占比</th><th>操作</th></tr>';document.getElementById('po-summary-body').innerHTML=ag.map(function(a,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(a.name)+'</td><td>'+a.count+'</td><td>'+a.scale.toFixed(2)+'</td><td>'+(a.scale/(total||1)*100).toFixed(1)+'%</td><td>'+pct(a.ret)+'</td><td>'+pct(a.excess)+'</td><td>'+a.win.toFixed(1)+'%</td><td><button class="po-detail-link" data-field="'+field+'" data-value="'+esc(a.name)+'">查看明细</button></td></tr>'}).join('');document.querySelectorAll('.po-detail-link').forEach(function(b){b.onclick=function(){var criteria={};if(S.view==='department'&&S.scope)criteria.dept=S.scope;if(S.strategy)criteria.strategy=S.strategy;if(b.dataset.field==='leaf')criteria.strategy=b.dataset.value;else if(b.dataset.field==='ext')criteria.external=b.dataset.value;else criteria.manager=b.dataset.value;openLedger(criteria)}})}
+  function filteredLedger(){return DATA.filter(function(x){var f=S.filters,q=f.q.toLowerCase();return (!q||(x.id+' '+x.name+' '+x.l3+' '+x.ext+' '+x.leaf).toLowerCase().indexOf(q)>=0)&&(!f.dept||x.dept===f.dept)&&(!f.manager||x.manager===f.manager)&&(!f.researcher||x.researcher===f.researcher)&&(!f.mode||x.mode===f.mode)&&(!f.l1||x.l1===f.l1)&&(!f.l2||x.l2===f.l2)&&(!f.strategy||x.leaf===f.strategy)&&(!f.external||x.ext===f.external)}).sort(function(a,b){var k=S.sort,av=k==='ret'?a[key()]:k==='excess'?a[ekey()]:a[k],bv=k==='ret'?b[key()]:k==='excess'?b[ekey()]:b[k];return (typeof av==='number'?av-bv:String(av).localeCompare(String(bv),'zh-CN'))*S.dir})}
+  function renderLedger(){var all=filteredLedger(),pages=Math.max(1,Math.ceil(all.length/20));S.page=Math.min(S.page,pages);var rows=all.slice((S.page-1)*20,S.page*20),active=[];if(S.filters.dept)active.push('部门：'+S.filters.dept);if(S.filters.manager)active.push('投资经理：'+S.filters.manager);if(S.filters.strategy)active.push('投资策略：'+S.filters.strategy);if(S.filters.external)active.push('委外管理人：'+S.filters.external);if(S.filters.q)active.push('关键词：'+S.filters.q);document.getElementById('po-ledger-summary').textContent=(active.length?active.join(' ｜ ')+' ｜ ':'')+'共 '+all.length+' 个专户｜管理规模 '+fmt(all.reduce(function(s,x){return s+x.scale},0),2)+' 亿元｜当前显示第 '+S.page+' / '+pages+' 页';document.getElementById('po-ledger-body').innerHTML=rows.map(function(x,i){return '<tr><td>'+((S.page-1)*20+i+1)+'</td><td>'+x.id+'</td><td><button class="po-account-link" data-id="'+x.baseId+'">'+esc(x.name)+'</button></td><td>'+x.dept+'</td><td>'+x.manager+'</td><td>'+x.researcher+'</td><td>'+x.leaf+'</td><td>'+x.l2+'</td><td>'+x.l3+'</td><td>'+x.mode+'</td><td>'+x.ext+'</td><td>'+x.benchmark+'</td><td>'+x.scale.toFixed(2)+'</td><td>'+x.quota.toFixed(2)+'</td><td class="'+cls(x[key()])+'">'+x[key()].toFixed(2)+'</td><td class="'+cls(x[ekey()])+'">'+x[ekey()].toFixed(2)+'</td><td class="po-negative">'+x.dd.toFixed(2)+'</td></tr>'}).join('');document.querySelectorAll('.po-account-link').forEach(function(b){b.onclick=function(){if(typeof selectSpv==='function')selectSpv(b.dataset.id)}});var p=document.querySelector('.po-pagination'),buttons='<span>每页20条</span><button data-p="'+(S.page-1)+'" '+(S.page===1?'disabled':'')+'>‹</button>';var from=Math.max(1,S.page-2),to=Math.min(pages,from+4);from=Math.max(1,to-4);for(var n=from;n<=to;n++)buttons+='<button data-p="'+n+'" class="'+(n===S.page?'active':'')+'">'+n+'</button>';buttons+='<button data-p="'+(S.page+1)+'" '+(S.page===pages?'disabled':'')+'>›</button>';p.innerHTML=buttons;p.querySelectorAll('button:not([disabled])').forEach(function(b){b.onclick=function(){S.page=+b.dataset.p;renderLedger()}})}
+ function syncFilterInputs(){var map={q:'po-q',dept:'po-dept',manager:'po-manager',researcher:'po-researcher',mode:'po-mode',l1:'po-l1',l2:'po-l2'};Object.keys(map).forEach(function(k){document.getElementById(map[k]).value=S.filters[k]||''})}
+ function syncViews(){document.querySelectorAll('.po-view-tab').forEach(function(b){b.classList.toggle('active',b.dataset.view===S.view)});document.getElementById('po-dashboard').classList.toggle('hidden',S.view==='all');document.getElementById('po-ledger').classList.toggle('active',S.view==='all');if(S.view==='all'){renderLedger()}else renderDashboard()}
+ function init(){makePage();var im=document.querySelector('.menu [data-page="investment-manager-analysis"]'),anchor=im||document.querySelector('.menu [data-page="benchmark-maintenance"]');if(anchor&&!document.querySelector('.menu [data-page="portfolio-operations"]')){var b=anchor.cloneNode(false);b.dataset.page='portfolio-operations';b.textContent='专户经营分析';b.classList.remove('active');anchor.parentElement.insertBefore(b,anchor);b.onclick=function(){page('portfolio-operations');syncViews();window.scrollTo(0,0)}}if(typeof infos!=='undefined')infos['portfolio-operations']=['投后分析','专户经营分析'];options('po-dept','dept','部门');options('po-manager','manager','投资经理');options('po-researcher','researcher','研究员');options('po-l1','l1','一级策略');options('po-l2','l2','二级策略');document.querySelectorAll('.po-view-tab').forEach(function(b){b.onclick=function(){S.view=b.dataset.view;S.scope='';S.page=1;syncViews()}});document.querySelectorAll('.po-period button').forEach(function(b){b.onclick=function(){S.period=b.dataset.period;document.querySelectorAll('.po-period button').forEach(function(x){x.classList.toggle('active',x===b)});renderDashboard()}});document.querySelectorAll('.po-level button').forEach(function(b){b.onclick=function(){S.level=b.dataset.level;document.querySelectorAll('.po-level button').forEach(function(x){x.classList.toggle('active',x===b)});renderDashboard()}});document.getElementById('po-scope-select').onchange=function(){S.scope=this.value;renderDashboard()};document.querySelectorAll('.po-bottom-tab').forEach(function(b){b.onclick=function(){S.bottom=b.dataset.bottom;document.querySelectorAll('.po-bottom-tab').forEach(function(x){x.classList.toggle('active',x===b)});renderSummary(scoped())}});document.getElementById('po-query').onclick=function(){S.filters=Object.assign(emptyFilters(),{q:document.getElementById('po-q').value.trim(),dept:document.getElementById('po-dept').value,manager:document.getElementById('po-manager').value,researcher:document.getElementById('po-researcher').value,mode:document.getElementById('po-mode').value,l1:document.getElementById('po-l1').value,l2:document.getElementById('po-l2').value});S.page=1;renderLedger()};document.getElementById('po-reset').onclick=function(){S.filters=emptyFilters();S.page=1;syncFilterInputs();renderLedger()};document.querySelectorAll('#po-ledger th[data-sort]').forEach(function(th){th.onclick=function(){var k=th.dataset.sort;if(S.sort===k)S.dir*=-1;else{S.sort=k;S.dir=k==='id'||k==='name'||k==='dept'||k==='manager'?1:-1}renderLedger()}});renderDashboard()}
+  window.portfolioOperationsApi={setStrategy:function(value){S.strategy=value;S.page=1;renderDashboard()},getStrategies:function(){return PO_STRATEGIES.map(function(x){return x[0]})},getStrategy:function(){return S.strategy},getData:function(){return DATA.slice()},getState:function(){return {view:S.view,period:S.period,strategy:S.strategy,scope:S.scope,bottom:S.bottom,filters:Object.assign({},S.filters)}},getScopedRows:function(){return scoped().slice()},openLedger:openLedger,renderDashboard:renderDashboard};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<!-- PORTFOLIO_OPERATIONS_END -->
+<!-- PORTFOLIO_NAVIGATION_START -->
+<style id="portfolio-navigation-style">
+.po-nav-group{padding-top:2px}.po-nav-group>.group-title{margin-top:0}.po-nav-menu .po-nav-view{padding-left:34px;font-size:13px}.po-nav-menu .po-nav-view:before{width:5px;height:5px;border:0;border-radius:50%;background:#5c829f;transform:none}.po-nav-menu .po-nav-view.active:before{background:#8feaff;box-shadow:0 0 7px #49dbea}.po-strategy-tabs{display:flex;gap:3px;padding:3px;border:1px solid #ead6aa;border-radius:7px;background:#fff8e8;overflow-x:auto}.po-strategy-tab{height:27px;padding:0 9px;border:0;border-radius:5px;background:transparent;color:#765d2d;font:600 10px "Microsoft YaHei";white-space:nowrap;cursor:pointer}.po-strategy-tab:hover{background:#f4e8c8;color:#9a6410}.po-strategy-tab[aria-selected="true"]{background:#c88719;color:#fff;box-shadow:0 2px 6px #c8871938}
+.side,.side button,#portfolio-operations,#portfolio-operations button,#portfolio-operations select,#portfolio-operations input,#portfolio-operations text{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif!important}
+.side button{font-size:13px}
+@media(min-width:901px){.side{overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#47739866 transparent}.side::-webkit-scrollbar{width:5px}.side::-webkit-scrollbar-track{background:transparent}.side::-webkit-scrollbar-thumb{border-radius:5px;background:#47739866}.side::-webkit-scrollbar-thumb:hover{background:#5d8bb580}}
+.statistics-nav-group{padding-top:2px}.statistics-nav-group>.group-title{margin-top:0}.statistics-nav-menu .statistics-nav-view{padding-left:34px;font-size:13px}.statistics-nav-menu .statistics-nav-view:before{width:5px;height:5px;border:0;border-radius:50%;background:#5c829f;transform:none}.statistics-nav-menu .statistics-nav-view.active:before{background:#8feaff;box-shadow:0 0 7px #49dbea}
+#investment-manager-analysis .im-tabs{display:none}
+#portfolio-operations .po-overview{grid-template-columns:1fr}
+#portfolio-operations .po-filterbar{display:grid;grid-template-columns:max-content minmax(180px,1fr) max-content;gap:10px 18px;align-items:center}
+#portfolio-operations .po-filterbar>.po-filter-group:nth-child(1){grid-column:1;grid-row:1}
+#portfolio-operations .po-filterbar>.po-filter-group:nth-child(2){grid-column:1/-1;grid-row:2;min-width:0}
+#portfolio-operations #po-scope-group{grid-column:2;grid-row:1;justify-self:end}
+#portfolio-operations .po-cutoff{grid-column:3;grid-row:1;margin-left:0}
+#portfolio-operations .po-strategy-tabs{min-width:0;max-width:100%}
+#portfolio-operations .po-overview-copy{border-right:0;border-bottom:1px solid #d8e3ec}
+#portfolio-operations .po-overview-copy{display:grid;grid-template-columns:minmax(280px,.38fr) minmax(0,.62fr);grid-template-rows:auto 1fr;column-gap:34px;align-items:start}
+#portfolio-operations .po-overview-copy h2{grid-column:1;grid-row:1}
+#portfolio-operations .po-overview-copy>p{grid-column:1;grid-row:2}
+#portfolio-operations .po-insights{grid-column:2;grid-row:1/span 2;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px;row-gap:10px;margin-top:0}
+#portfolio-operations .po-kpis{grid-template-columns:repeat(7,minmax(0,1fr))}
+#portfolio-operations .po-chart-grid{grid-template-columns:1fr}
+#portfolio-operations .po-chart{height:286px}
+#portfolio-operations .po-chart-panel{position:relative;border-color:#c7d7e3;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);box-shadow:0 8px 22px #173f5d0d}
+#portfolio-operations .po-chart-panel:before{content:"";position:absolute;z-index:2;left:0;top:0;width:3px;height:48px;background:linear-gradient(#1679b7,#25c6d6)}
+#portfolio-operations .po-chart{background-image:linear-gradient(#2587aa08 1px,transparent 1px),linear-gradient(90deg,#2587aa08 1px,transparent 1px);background-size:28px 28px}
+#portfolio-operations .po-gridline{stroke:#d8e5ed;stroke-dasharray:3 5}
+#portfolio-operations .po-chart polyline{filter:drop-shadow(0 0 3px #20b9cf33)}
+#portfolio-operations .po-scale-signal{filter:drop-shadow(0 0 4px #20b9cf77)}
+#portfolio-operations .po-chart-value{fill:#244e6a;font:700 9px Arial,"Microsoft YaHei"}
+#portfolio-operations .po-scale-bar{filter:drop-shadow(0 3px 4px #176ea924)}
+#portfolio-operations .po-panel-head h3:before{content:"";display:inline-block;width:3px;height:13px;margin-right:8px;background:#20b9cf;box-shadow:0 0 6px #20b9cf55;vertical-align:-2px}
+@media(max-width:1250px){#portfolio-operations .po-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:900px){#portfolio-operations .po-overview-copy{grid-template-columns:1fr;grid-template-rows:auto auto auto}#portfolio-operations .po-overview-copy h2,#portfolio-operations .po-overview-copy>p,#portfolio-operations .po-insights{grid-column:1;grid-row:auto}#portfolio-operations .po-insights{margin-top:14px}}
+@media(max-width:900px){#portfolio-operations .po-filterbar{grid-template-columns:1fr auto}#portfolio-operations .po-filterbar>.po-filter-group:nth-child(1){grid-column:1/-1;grid-row:1}#portfolio-operations .po-filterbar>.po-filter-group:nth-child(2){grid-column:1/-1;grid-row:2}#portfolio-operations #po-scope-group{grid-column:1;grid-row:3;justify-self:start}#portfolio-operations .po-cutoff{grid-column:2;grid-row:3}}
+@media(max-width:700px){#portfolio-operations .po-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<script id="portfolio-navigation-module">
+(function(){
+ function companyWording(){var title=document.getElementById('po-overview-title');if(title&&title.textContent.indexOf('全行')===0)title.textContent=title.textContent.replace(/^全行/,'公司')}
+ function initStatisticsNavigation(){
+  document.querySelectorAll('.menu [data-page="investment-manager-analysis"]:not(.statistics-nav-view)').forEach(function(item){item.remove()});
+  var side=document.querySelector('aside.side');if(!side||document.querySelector('.statistics-nav-group'))return;
+  var group=document.createElement('div');group.className='statistics-nav-group';group.innerHTML='<div class="group-title">统计分析</div><nav class="menu statistics-nav-menu"></nav>';
+  var menu=group.querySelector('.statistics-nav-menu'),items=[['account','委外账户分析'],['fund','基金收益统计']];
+  items.forEach(function(item){var button=document.createElement('button');button.className='statistics-nav-view';button.dataset.page='statistics-'+item[0]+'-analysis';button.dataset.statisticsView=item[0];button.textContent=item[1];button.onclick=function(){if(typeof infos!=='undefined')infos['investment-manager-analysis']=['统计分析',item[1]];if(typeof state!=='undefined'){state.workspacePageLabels=state.workspacePageLabels||{};state.workspacePageLabels['investment-manager-analysis']=item[1]}if(typeof page==='function')page('investment-manager-analysis');var tab=document.querySelector('.im-tab[data-im-tab="'+item[0]+'"]');if(tab)tab.click();document.querySelectorAll('.statistics-nav-view').forEach(function(x){var active=x===button;x.classList.toggle('active',active);if(active)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});window.scrollTo(0,0)};menu.appendChild(button)});
+  var portfolioGroup=document.querySelector('.po-nav-group'),logo=side.querySelector('.logo');if(portfolioGroup)portfolioGroup.insertAdjacentElement('afterend',group);else if(logo)logo.insertAdjacentElement('afterend',group);
+ }
+ function initPortfolioNavigation(){
+  initStatisticsNavigation();
+  var oldTabs=Array.from(document.querySelectorAll('#portfolio-operations .po-view-tab')),tabMap={};oldTabs.forEach(function(tab){tabMap[tab.dataset.view]=tab});
+  var oldWrap=document.querySelector('#portfolio-operations .po-view-tabs');if(oldWrap)oldWrap.remove();
+  var oldLevel=document.querySelector('#portfolio-operations .po-level'),levelGroup=oldLevel&&oldLevel.closest('.po-filter-group');if(levelGroup&&window.portfolioOperationsApi){var strategies=['全部策略'].concat(window.portfolioOperationsApi.getStrategies());levelGroup.innerHTML='<span>投资策略</span><div class="po-strategy-tabs" role="tablist" aria-label="投资策略"></div>';var strategyTabs=levelGroup.querySelector('.po-strategy-tabs');strategies.forEach(function(strategy,index){var tab=document.createElement('button');tab.type='button';tab.className='po-strategy-tab';tab.textContent=strategy;tab.dataset.strategy=strategy==='全部策略'?'':strategy;tab.setAttribute('role','tab');tab.setAttribute('aria-selected',index===0?'true':'false');tab.onclick=function(){strategyTabs.querySelectorAll('.po-strategy-tab').forEach(function(x){x.setAttribute('aria-selected',x===tab?'true':'false')});window.portfolioOperationsApi.setStrategy(tab.dataset.strategy);companyWording()};strategyTabs.appendChild(tab)})}
+  document.querySelectorAll('.menu [data-page="portfolio-operations"]').forEach(function(item){if(!item.classList.contains('po-nav-view'))item.remove()});
+  if(!document.querySelector('.po-nav-group')){
+   var group=document.createElement('div');group.className='po-nav-group';group.innerHTML='<div class="group-title">经营分析</div><nav class="menu po-nav-menu"></nav>';
+   var menu=group.querySelector('.po-nav-menu'),labels=[['bank','公司总览'],['department','部门总览'],['manager','投资经理视角'],['all','全部专户']];
+   labels.forEach(function(item){var button=document.createElement('button');button.className='po-nav-view';button.dataset.page='portfolio-operations';button.dataset.poView=item[0];button.textContent=item[1];button.onclick=function(){if(typeof infos!=='undefined')infos['portfolio-operations']=['经营分析',item[1]];if(typeof state!=='undefined'){state.workspacePageLabels=state.workspacePageLabels||{};state.workspacePageLabels['portfolio-operations']=item[1]}if(typeof page==='function')page('portfolio-operations');if(tabMap[item[0]])tabMap[item[0]].click();document.querySelectorAll('.po-nav-view').forEach(function(x){x.classList.toggle('active',x===button)});companyWording();window.scrollTo(0,0)};menu.appendChild(button)});
+   var side=document.querySelector('aside.side'),logo=side&&side.querySelector('.logo');if(logo)logo.insertAdjacentElement('afterend',group);
+  }
+  if(typeof infos!=='undefined')infos['portfolio-operations']=['经营分析','公司总览'];if(typeof state!=='undefined'){state.workspacePageLabels=state.workspacePageLabels||{};state.workspacePageLabels['portfolio-operations']='公司总览'}
+  companyWording();
+  var title=document.getElementById('po-overview-title'),ledger=document.getElementById('po-ledger');
+  if(title)new MutationObserver(companyWording).observe(title,{childList:true,characterData:true,subtree:true});
+  if(ledger)new MutationObserver(function(){if(ledger.classList.contains('active'))document.querySelectorAll('.po-nav-view').forEach(function(x){x.classList.toggle('active',x.dataset.poView==='all')})}).observe(ledger,{attributes:true,attributeFilter:['class']});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initPortfolioNavigation);else initPortfolioNavigation();
+})();
+</script>
+<!-- PORTFOLIO_NAVIGATION_END -->
+<!-- leadership-closure:start -->
+<style>
+#portfolio-operations .po-leadership-grid{display:grid;grid-template-columns:1fr;gap:14px;margin:14px 0}
+#portfolio-operations .po-leadership-card{background:#fff;border:1px solid #c9dbe8;border-top:2px solid #d4a72c;box-shadow:0 4px 14px rgba(23,71,108,.055);min-width:0}
+#portfolio-operations .po-leadership-card.wide{grid-column:1/-1}
+#portfolio-operations .po-leadership-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 10px;border-bottom:1px solid #e1eaf0}
+#portfolio-operations .po-leadership-head h3{font-size:15px;color:#123f62;margin:0;font-weight:700;letter-spacing:.2px}
+#portfolio-operations .po-leadership-head span{font-size:12px;color:#71869a}
+#portfolio-operations .po-leadership-body{padding:10px 14px 14px}
+#portfolio-operations .po-leadership-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+#portfolio-operations .po-leadership-table th{padding:9px 7px;color:#60798e;font-weight:500;text-align:right;background:#f5f8fa;border-bottom:1px solid #dce7ee}
+#portfolio-operations .po-leadership-table th:first-child,#portfolio-operations .po-leadership-table td:first-child{text-align:left}
+#portfolio-operations .po-leadership-table td{padding:10px 7px;text-align:right;border-bottom:1px solid #edf2f5;color:#294f6d}
+#portfolio-operations .po-leadership-table tr:last-child td{border-bottom:0}
+#portfolio-operations .po-rank-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#portfolio-operations .po-rank-title{font-size:12px;color:#6a8093;margin:2px 0 7px}
+#portfolio-operations .po-rank-item{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:7px;align-items:center;padding:8px 0;border-bottom:1px solid #edf2f5}
+#portfolio-operations .po-rank-item:last-child{border-bottom:0}
+#portfolio-operations .po-rank-no{width:20px;height:20px;display:grid;place-items:center;background:#edf4f8;color:#46718f;font-size:11px}
+#portfolio-operations .po-rank-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#214d6d;font-size:12px}
+#portfolio-operations .po-rank-value{font-variant-numeric:tabular-nums;font-size:12px;font-weight:700}
+#portfolio-operations .po-rank-value.good{color:#bc7b13}.po-rank-value.bad{color:#c94e55}
+#portfolio-operations .po-status{display:inline-flex;padding:3px 8px;background:#fff5d9;color:#9a6810;border:1px solid #ecd38a;font-size:11px}
+#portfolio-operations .po-status.progress{background:#eaf4fb;color:#256e9f;border-color:#b9d8ea}
+#portfolio-operations .po-action-link{border:0;background:transparent;color:#176fa7;cursor:pointer;padding:0;font:inherit;text-align:left}
+#portfolio-operations .po-action-link:hover{text-decoration:underline}
+#portfolio-operations .po-chart-period{fill:#6a8093;font-size:11px;font-weight:600}
+#portfolio-operations rect[data-strategy-bar]{filter:drop-shadow(0 2px 2px rgba(19,65,98,.08))}
+@media(max-width:1120px){#portfolio-operations .po-leadership-grid{grid-template-columns:1fr}#portfolio-operations .po-leadership-card.wide{grid-column:auto}}
+</style>
+<script>
+(function(){
+ var DEPTS=['固定收益部','权益投资部','专户投资部'];
+ var COLORS=['#2f7eb8','#d4a72c','#7559a6','#d47d49','#2f9ba4','#9c6d3d','#5372c8','#b45b78'];
+ var pending=false;
+ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ function sum(rows,k){return rows.reduce(function(s,x){return s+(+x[k]||0)},0)}
+ function weighted(rows,k){var total=sum(rows,'scale');return total?rows.reduce(function(s,x){return s+x.scale*(+x[k]||0)},0)/total:0}
+ function periodLabel(p){return ({'1':'近1月','3':'近3月','6':'近6月','12':'近1年'})[p]||'当前区间'}
+ function keys(p){return {ret:'r'+p,excess:'e'+p}}
+ function pct(v){return (v>=0?'+':'')+v.toFixed(2)+'%'}
+ function fmt(v,d){return Number(v||0).toLocaleString('zh-CN',{minimumFractionDigits:d,maximumFractionDigits:d})}
+ function schedule(){if(pending)return;pending=true;setTimeout(function(){pending=false;enhance()},0)}
+ function labels(p){if(p==='1')return ['期初','第1周','第2周','第3周','第4周','本期'];if(p==='3')return ['期初','第1月','第1.5月','第2月','第2.5月','第3月'];if(p==='6')return ['第1月','第2月','第3月','第4月','第5月','第6月'];return ['1月','3月','5月','7月','9月','12月']}
+ function scaleSvg(rows,p){var total=sum(rows,'scale'),labs=labels(p),growth=({'1':.044,'3':.061,'6':.083,'12':.116})[p]||.05,vals=labs.map(function(_,i){var progress=i/(labs.length-1||1);return total/(1+growth)*(1+growth*progress)});vals[vals.length-1]=total;var W=1000,H=220,L=58,R=24,T=34,B=38,max=Math.max.apply(null,vals)*1.075,min=Math.min.apply(null,vals)*.94,span=max-min||1,step=(W-L-R)/vals.length,bar=Math.min(19,step*.18);var y=function(v){return T+(max-v)/span*(H-T-B)};var s='<svg viewBox="0 0 '+W+' '+H+'" aria-label="'+periodLabel(p)+'管理规模走势"><defs><linearGradient id="po-scale-lead" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2f8dc2"/><stop offset="1" stop-color="#1b679c"/></linearGradient></defs><text class="po-chart-period" x="'+L+'" y="18">'+periodLabel(p)+' · 期末 '+fmt(total,1)+' 亿元</text>';
+  for(var g=0;g<5;g++){var gy=T+g*(H-T-B)/4,val=max-g*span/4;s+='<line class="po-gridline" x1="'+L+'" y1="'+gy+'" x2="'+(W-R)+'" y2="'+gy+'"/><text class="po-axis-label" x="'+(L-7)+'" y="'+(gy+3)+'" text-anchor="end">'+fmt(val,0)+'</text>'}
+  vals.forEach(function(v,i){var cx=L+(i+.5)*step,yy=y(v);s+='<rect class="po-scale-bar" data-scale-value="'+v.toFixed(1)+'" x="'+(cx-bar/2)+'" y="'+yy+'" width="'+bar+'" height="'+(H-B-yy)+'" rx="2.5" fill="url(#po-scale-lead)"/><text class="po-chart-value" x="'+cx+'" y="'+(yy-7)+'" text-anchor="middle">'+fmt(v,1)+'</text><text class="po-axis-label" x="'+cx+'" y="'+(H-11)+'" text-anchor="middle">'+labs[i]+'</text>'});
+  s+='<polyline class="po-scale-signal" points="'+vals.map(function(v,i){return (L+(i+.5)*step)+','+y(v)}).join(' ')+'" fill="none" stroke="#d4a72c" stroke-width="2"/>';return s+'</svg>'}
+ function returnSvg(rows,p){var k=keys(p),finalRet=weighted(rows,k.ret),finalEx=weighted(rows,k.excess),finalBench=finalRet-finalEx,labs=labels(p),W=1000,H=220,L=58,R=24,T=34,B=38;var ret=labs.map(function(_,i){var q=(i+1)/labs.length;return finalRet*q+Math.sin(i*1.35)*.045}),bench=labs.map(function(_,i){var q=(i+1)/labs.length;return finalBench*q+Math.cos(i*1.15)*.025});ret[ret.length-1]=finalRet;bench[bench.length-1]=finalBench;var all=ret.concat(bench,[0]),min=Math.min.apply(null,all)-.12,max=Math.max.apply(null,all)+.12,y=function(v){return T+(max-v)/(max-min||1)*(H-T-B)},x=function(i){return L+i*(W-L-R)/(labs.length-1||1)},s='<svg viewBox="0 0 '+W+' '+H+'" aria-label="'+periodLabel(p)+'组合收益走势"><text class="po-chart-period" x="'+L+'" y="18">'+periodLabel(p)+' · 组合 '+pct(finalRet)+' · 超额 '+pct(finalEx)+'</text>';
+  for(var g=0;g<5;g++){var yy=T+g*(H-T-B)/4,val=max-g*(max-min)/4;s+='<line class="po-gridline" x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'"/><text class="po-axis-label" x="'+(L-7)+'" y="'+(yy+3)+'" text-anchor="end">'+val.toFixed(1)+'%</text>'}
+  s+='<polyline points="'+ret.map(function(v,i){return x(i)+','+y(v)}).join(' ')+'" fill="none" stroke="#2f7eb8" stroke-width="2.5"/><polyline points="'+bench.map(function(v,i){return x(i)+','+y(v)}).join(' ')+'" fill="none" stroke="#d4a72c" stroke-width="2.3" stroke-dasharray="6 4"/>';
+  labs.forEach(function(l,i){s+='<text class="po-axis-label" x="'+x(i)+'" y="'+(H-11)+'" text-anchor="middle">'+l+'</text>'});return s+'</svg>'}
+ function distributionSvg(rows){var api=window.portfolioOperationsApi,names=api.getStrategies(),items=names.map(function(name){var set=rows.filter(function(x){return x.leaf===name});return {name:name,value:sum(set,'scale')}}),W=1000,H=230,L=158,R=80,T=18,B=12,row=(H-T-B)/items.length,max=Math.max.apply(null,items.map(function(x){return x.value}).concat([1]));var s='<svg viewBox="0 0 '+W+' '+H+'" aria-label="全部策略规模分布">';items.forEach(function(item,i){var yy=T+i*row+4,w=(W-L-R)*item.value/max;s+='<text class="po-axis-label" x="'+(L-10)+'" y="'+(yy+13)+'" text-anchor="end">'+esc(item.name)+'</text><rect data-strategy-bar="'+esc(item.name)+'" x="'+L+'" y="'+yy+'" width="'+w+'" height="15" rx="3" fill="'+COLORS[i%COLORS.length]+'"/><text class="po-chart-value" x="'+(L+w+8)+'" y="'+(yy+12)+'">'+fmt(item.value,1)+'亿</text>'});return s+'</svg>'}
+ function ensureSections(){var table=document.querySelector('#portfolio-operations .po-dashboard>.po-table-panel');if(!table||document.getElementById('po-leadership-grid'))return;var wrap=document.createElement('div');wrap.id='po-leadership-grid';wrap.className='po-leadership-grid';wrap.innerHTML='<section class="po-leadership-card"><div class="po-leadership-head"><h3>三部门经营对比</h3><span id="po-dept-period"></span></div><div class="po-leadership-body"><table class="po-leadership-table"><thead><tr><th>投资部门</th><th>规模</th><th>区间收益</th><th>区间超额</th><th>收益贡献</th><th>关注账户</th></tr></thead><tbody id="po-department-comparison"></tbody></table></div></section>';table.parentNode.insertBefore(wrap,table)}
+ function renderInsights(rows,state){var p=state.period,k=keys(p),total=sum(rows,'scale'),ret=weighted(rows,k.ret),ex=weighted(rows,k.excess),win=rows.filter(function(x){return x[k.excess]>0}).length/(rows.length||1)*100,worst=rows.slice().sort(function(a,b){return a[k.excess]-b[k.excess]})[0],growth=({'1':4.4,'3':6.1,'6':8.3,'12':11.6})[p];var el=document.getElementById('po-insights');if(!el)return;el.innerHTML='<div class="po-insight">'+periodLabel(p)+'管理规模较期初增长约 '+growth.toFixed(1)+'%，期末 '+fmt(total,1)+' 亿元。</div><div class="po-insight">组合收益 '+pct(ret)+'，超额收益 '+pct(ex)+'，跑赢基准账户占比 '+win.toFixed(1)+'%。</div><div class="po-insight">重点关注 '+esc(worst?worst.name:'暂无')+'，区间超额 '+pct(worst?worst[k.excess]:0)+'，需持续关注。</div>'}
+ function rankHtml(items,bad){return items.map(function(x,i){return '<div class="po-rank-item po-contribution-row"><span class="po-rank-no">'+(i+1)+'</span><button class="po-action-link po-rank-name" data-account="'+esc(x.id)+'">'+esc(x.name)+'</button><span class="po-rank-value '+(bad?'bad':'good')+'">'+pct(x.contribution)+'</span></div>'}).join('')}
+ function renderLeadership(rows,state){ensureSections();var grid=document.getElementById('po-leadership-grid');grid.style.display=state.view==='manager'?'none':'grid';if(state.view==='manager')return;var p=state.period,k=keys(p),total=sum(rows,'scale');document.getElementById('po-dept-period').textContent=periodLabel(p)+' · 同口径比较';document.getElementById('po-department-comparison').innerHTML=DEPTS.map(function(dept){var set=rows.filter(function(x){return x.dept===dept}),scale=sum(set,'scale'),r=weighted(set,k.ret),e=weighted(set,k.excess),contribution=total?scale/total*r:0,attention=set.filter(function(x){return x[k.excess]<0||x.dd<-2}).length;return '<tr><td>'+dept+'</td><td>'+fmt(scale,1)+' 亿</td><td>'+pct(r)+'</td><td class="'+(e<0?'po-negative':'po-positive')+'">'+pct(e)+'</td><td>'+pct(contribution)+'</td><td>'+attention+' 户</td></tr>'}).join('');
+ }
+ function enhance(){var root=document.getElementById('portfolio-operations'),api=window.portfolioOperationsApi;if(!root||!api||!root.querySelector('.po-dashboard'))return;var state=api.getState(),rows=api.getScopedRows();if(!rows.length)return;var a=document.getElementById('po-chart-scale'),b=document.getElementById('po-chart-return'),c=document.getElementById('po-chart-dist');if(a)a.innerHTML=scaleSvg(rows,state.period);if(b)b.innerHTML=returnSvg(rows,state.period);if(c)c.innerHTML=distributionSvg(rows);renderInsights(rows,state);renderLeadership(rows,state)}
+ function boot(){var root=document.getElementById('portfolio-operations'),api=window.portfolioOperationsApi;if(!root||!api){setTimeout(boot,80);return}var kpis=document.getElementById('po-kpis');if(kpis)new MutationObserver(schedule).observe(kpis,{childList:true,subtree:true});document.addEventListener('click',function(e){if(e.target.closest('#portfolio-operations .po-period button,#portfolio-operations .po-view-tab,#portfolio-operations .po-bottom-tab'))schedule()});document.addEventListener('change',function(e){if(e.target.closest('#portfolio-operations #po-scope-select'))schedule()});schedule()}
+ boot();
+})();
+</script>
+<!-- leadership-closure:end -->
+
+
+<!-- ACCOUNT_UI_POLISH_START -->
+<style>
+  #investment-manager-analysis .im-shell{border-radius:8px;border-color:#cbdbe7;box-shadow:0 5px 18px rgba(28,70,101,.055)}
+  #investment-manager-analysis .im-toolbar{gap:14px;padding:12px 16px;background:#f9fbfc;border-bottom-color:#d8e4ec}
+  #investment-manager-analysis .im-toolbar>.im-field{gap:9px}
+  #investment-manager-analysis .im-toolbar>.im-field>label{font-size:12px;color:#587187;font-weight:500}
+  #investment-manager-analysis .im-toolbar input,#investment-manager-analysis .im-toolbar select{border-color:#c7d7e4;background:#fff}
+  #investment-manager-analysis .im-toolbar input:focus,#investment-manager-analysis .im-toolbar select:focus{border-color:#2c78b7;box-shadow:0 0 0 2px rgba(44,120,183,.10)}
+  #im-view-account .im-account-strategy-tabs{gap:5px;padding:8px 16px;background:#fffaf0;border-top:0;border-bottom-color:#e8d8b5}
+  #im-view-account .im-strategy-tab{height:31px;padding:0 13px;border-color:#e4d2a7;background:#fffdf8;color:#705a30;border-radius:5px;font-size:12px}
+  #im-view-account .im-strategy-tab:hover{border-color:#c99732;background:#fff7e5;color:#8b5d0d}
+  #im-view-account .im-strategy-tab[aria-selected="true"]{border-color:#c88719;background:#c88719;color:#fff;box-shadow:0 2px 6px rgba(200,135,25,.22);font-weight:700}
+  #im-view-account .im-strategy-tab:focus-visible{outline-color:#c88719}
+  #im-view-account .im-section-head{min-height:58px;padding:0 16px;background:#fff;border-bottom:1px solid #dce6ed}
+  #im-view-account .im-section-head>div:first-child{gap:0;flex:1;overflow:hidden}
+  #im-view-account .im-section-title{flex:0 0 auto;padding-right:20px;margin-right:0;color:#153e5f;font-size:15px;font-weight:700}
+  #im-view-account .im-account-inline-metrics{gap:0;flex:1;overflow:hidden}
+  #im-view-account .im-inline-metric{display:flex;align-items:baseline;gap:5px;min-width:0;padding:0 18px;border-left:1px solid #dfe7ed}
+  #im-view-account .im-inline-label{color:#6b8194;font-size:11px}
+  #im-view-account .im-inline-value{color:#173f60;font:700 18px Arial,'Microsoft YaHei',sans-serif;font-variant-numeric:tabular-nums}
+  #im-view-account .im-inline-unit{color:#8092a2;font-size:10px}
+  #im-view-account .im-inline-value.im-positive{color:#d53d43!important}
+  #im-view-account .im-inline-value.im-negative{color:#078164!important}
+  #im-view-account .im-table-wrap{max-height:560px;border-top:0;scrollbar-color:#9fb4c5 #eef3f6;scrollbar-width:thin}
+  #im-view-account .im-account-table{font-variant-numeric:tabular-nums}
+  #im-view-account .im-account-table th{height:39px;background:#eaf1f6;color:#284f6d;border-right:1px solid #dce6ed;border-bottom:1px solid #c8d8e3;font-size:11px;letter-spacing:.1px}
+  #im-view-account .im-account-table td{height:43px;border-right:1px solid #edf2f5;border-bottom:1px solid #e4ebf0;color:#34536a;font-size:12px}
+  #im-view-account .im-account-table tbody tr:nth-child(even) td{background:#fbfcfd}
+  #im-view-account .im-account-table tbody tr:hover td{background:#f0f6fa}
+  #im-view-account .im-account-table th:first-child,#im-view-account .im-account-table td:first-child{box-shadow:5px 0 8px -8px rgba(25,57,80,.55)}
+  #im-view-account .im-account-table td:first-child{background:#fff}
+  #im-view-account .im-account-table tbody tr:nth-child(even) td:first-child{background:#fbfcfd}
+  #im-view-account .im-account-table tbody tr:hover td:first-child{background:#f0f6fa}
+  #im-view-fund .im-fund-type-tabs{gap:5px;padding:8px 16px;background:#fffaf0;border-top:0;border-bottom-color:#e8d8b5}
+  #im-view-fund .im-fund-type-tab{height:31px;padding:0 13px;border-color:#e4d2a7;background:#fffdf8;color:#705a30;border-radius:5px;font-size:12px;box-shadow:none}
+  #im-view-fund .im-fund-type-tab:hover{border-color:#c99732;background:#fff7e5;color:#8b5d0d}
+  #im-view-fund .im-fund-type-tab[aria-selected="true"]{border-color:#c88719;background:#c88719;color:#fff;box-shadow:0 2px 6px rgba(200,135,25,.22);font-weight:700}
+  #im-view-fund .im-fund-type-tab:focus-visible{outline-color:#c88719}
+  #im-view-fund .im-section-head{min-height:58px;padding:0 16px;background:#fff;border-top:0;border-bottom:1px solid #dce6ed}
+  #im-view-fund .im-section-head>div:first-child{display:flex;align-items:center;gap:0;flex:1;overflow:hidden}
+  #im-view-fund .im-section-title{flex:0 0 auto;padding-right:20px;color:#153e5f;font-size:15px;font-weight:700}
+  #im-view-fund .im-fund-inline-metrics{gap:0;flex:1;overflow:hidden}
+  #im-view-fund .im-inline-metric{display:flex;align-items:baseline;gap:5px;min-width:0;padding:0 18px;border-left:1px solid #dfe7ed}
+  #im-view-fund .im-inline-label{color:#6b8194;font-size:11px}
+  #im-view-fund .im-inline-value{color:#173f60;font:700 18px Arial,'Microsoft YaHei',sans-serif;font-variant-numeric:tabular-nums}
+  #im-view-fund .im-inline-unit{color:#8092a2;font-size:10px}
+  #im-view-fund .im-inline-value.im-positive{color:#d53d43!important}
+  #im-view-fund .im-inline-value.im-negative{color:#078164!important}
+  #im-view-fund .im-table-wrap{max-height:560px;border-top:0;scrollbar-color:#9fb4c5 #eef3f6;scrollbar-width:thin}
+  #im-view-fund .im-fund-table{font-variant-numeric:tabular-nums}
+  #im-view-fund .im-fund-table th{height:39px;background:#eaf1f6;color:#284f6d;border-right:1px solid #dce6ed;border-bottom:1px solid #c8d8e3;font-size:11px}
+  #im-view-fund .im-fund-table td{height:43px;border-right:1px solid #edf2f5;border-bottom:1px solid #e4ebf0;color:#34536a;font-size:12px}
+  #im-view-fund .im-fund-table tbody tr:nth-child(even) td{background:#fbfcfd}
+  #im-view-fund .im-fund-table tbody tr:hover td{background:#f0f6fa}
+  #im-view-fund .im-fund-table th:first-child,#im-view-fund .im-fund-table td:first-child,#im-view-fund .im-fund-table th:nth-child(2),#im-view-fund .im-fund-table td:nth-child(2){box-shadow:5px 0 8px -8px rgba(25,57,80,.55)}
+  #im-view-fund .im-fund-table td:first-child,#im-view-fund .im-fund-table td:nth-child(2){background:#fff}
+  #im-view-fund .im-fund-table tbody tr:nth-child(even) td:first-child,#im-view-fund .im-fund-table tbody tr:nth-child(even) td:nth-child(2){background:#fbfcfd}
+  #im-view-fund .im-fund-table tbody tr:hover td:first-child,#im-view-fund .im-fund-table tbody tr:hover td:nth-child(2){background:#f0f6fa}
+  #im-view-fund .im-page-foot{padding:9px 16px;border-top:1px solid #e2e9ee;background:#fafcfd;color:#7b8e9e;font-size:11px}
+  #investment-manager-analysis .im-pagination{border-top:1px solid #dce6ed;background:#fafcfd;padding-right:16px}
+  @media(max-width:1180px){#im-view-account .im-inline-metric,#im-view-fund .im-inline-metric{padding:0 10px}#im-view-account .im-inline-label,#im-view-fund .im-inline-label{display:none}}
+</style>
+<!-- ACCOUNT_UI_POLISH_END -->
+
+<!-- WIND_ANALYSIS_CHARTS_START -->
+<style>
+ #wind-income-detail.wind-analysis-enhanced>.category-detail-metrics{display:none}
+ #wind-analysis-suite{margin:22px 0 0;color:#183d5b}
+ #wind-analysis-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}
+ .wind-analysis-metric{min-height:82px;padding:15px 17px;box-sizing:border-box;border:1px solid #cedde8;border-top:2px solid #2484c1;border-radius:8px;background:#fff;box-shadow:0 3px 10px rgba(25,64,94,.035)}
+ .wind-analysis-metric span{display:block;color:#75899b;font-size:12px}.wind-analysis-metric strong{display:block;margin-top:8px;color:#123d60;font:700 21px Arial,'Microsoft YaHei';font-variant-numeric:tabular-nums}.wind-analysis-metric strong.up{color:#d83c45}.wind-analysis-metric strong.down{color:#078164}.wind-analysis-metric small{margin-left:3px;color:#8193a2;font:400 10px 'Microsoft YaHei'}
+ .wind-analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}
+ .wind-analysis-panel{min-width:0;padding:16px 18px;border:1px solid #cedde8;border-radius:9px;background:#fff;box-shadow:0 4px 13px rgba(25,64,94,.04)}
+ .wind-analysis-panel h2{margin:0;color:#173f60;font-size:15px}.wind-analysis-panel>p{margin:5px 0 13px;color:#7b8e9f;font-size:11px}
+ .wind-income-parts{display:grid;gap:10px}.wind-income-part{display:grid;grid-template-columns:126px minmax(80px,1fr) 108px;align-items:center;gap:10px;font-size:12px}.wind-income-part>span:first-child{color:#4b687f}.wind-income-track{height:10px;background:#eef3f6;overflow:hidden}.wind-income-track i{display:block;height:100%;min-width:2px}.wind-income-part strong{text-align:right;font:700 12px Arial;color:#31536d;font-variant-numeric:tabular-nums}
+ .wind-contribution-list{display:grid;gap:8px}.wind-contribution-row{display:grid;grid-template-columns:minmax(100px,150px) minmax(90px,1fr) 105px;align-items:center;gap:9px;font-size:12px}.wind-contribution-row>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#41617a}.wind-contribution-track{position:relative;height:9px;background:#eef3f6}.wind-contribution-track i{display:block;height:100%;min-width:2px}.wind-contribution-row strong{text-align:right;font:700 12px Arial;font-variant-numeric:tabular-nums}.wind-contribution-row strong.up{color:#d83c45}.wind-contribution-row strong.down{color:#078164}
+ .wind-scatter{height:210px}.wind-scatter svg{width:100%;height:100%;display:block}.wind-chart-grid{stroke:#dfe8ee;stroke-width:1}.wind-chart-axis{fill:#7c8f9f;font:10px Arial,'Microsoft YaHei'}.wind-scatter circle{fill:#2484c1;fill-opacity:.72;stroke:#fff;stroke-width:1.5}
+ .wind-secondary-list{display:grid;gap:10px}.wind-secondary-row{display:grid;grid-template-columns:116px minmax(100px,1fr) 92px;align-items:center;gap:10px;font-size:12px}.wind-secondary-row>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#48677f}.wind-secondary-track{height:12px;background:#eef3f6}.wind-secondary-track i{display:block;height:100%;background:linear-gradient(90deg,#d3a125,#edc85f)}.wind-secondary-row strong{text-align:right;color:#31536d;font:700 12px Arial;font-variant-numeric:tabular-nums}
+ @media(max-width:1180px){#wind-analysis-metrics{grid-template-columns:repeat(3,1fr)}.wind-analysis-grid{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+ var scheduled=false,partColors=['#2e83b9','#d3a125','#775ba7','#d77b4a'];
+ function number(text){var n=parseFloat(String(text||'').replace(/,/g,'').replace(/[^\d.\-]/g,''));return Number.isFinite(n)?n:0}
+ function money(v){return (v<0?'-':'')+Math.abs(v).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+ function pct(v){return (v>0?'+':'')+v.toFixed(2)+'%'}
+ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ function index(headers,terms){for(var i=0;i<headers.length;i++)if(terms.some(function(t){return headers[i].indexOf(t)>=0}))return i;return -1}
+ function readRows(section){var table=section.querySelector('table'),headers=table?Array.from(table.querySelectorAll('thead th')).map(function(x){return x.textContent.trim().replace(/\s+/g,'')}):[];if(!table)return [];var code=index(headers,['基金代码','证券代码']),name=index(headers,['基金名称']),secondary=index(headers,['Wind二级分类']),close=index(headers,['期末市值']),total=index(headers,['区间总收益']),parts=[['持仓涨跌收益',['持仓涨跌收益','存量持仓涨跌收益']],['买入交易收益',['买入交易收益','期间买入涨跌收益']],['卖出交易收益',['卖出交易收益','期间卖出价差收益']],['现金分红收益',['现金分红收益']],['浮动盈亏',['浮动盈亏']],['已实现收益',['已实现收益']]].map(function(p){return {name:p[0],idx:index(headers,p[1])}}).filter(function(p){return p.idx>=0});return Array.from(table.querySelectorAll('tbody tr')).map(function(tr){var cells=Array.from(tr.cells).map(function(x){return x.textContent.trim()});var item={code:cells[code]||'',name:cells[name]||cells[code]||'未命名基金',secondary:secondary>=0?(cells[secondary]||'未分类'):'未分类',close:close>=0?number(cells[close]):0,total:total>=0?number(cells[total]):0,parts:{}};parts.forEach(function(p){item.parts[p.name]=number(cells[p.idx])});return item}).filter(function(x){return x.name})}
+ function metrics(rows){var close=rows.reduce(function(s,x){return s+x.close},0),total=rows.reduce(function(s,x){return s+x.total},0),rate=close?total/close*100:0,positive=rows.filter(function(x){return x.total>0}).length/(rows.length||1)*100,top1=close?Math.max.apply(null,rows.map(function(x){return x.close}))/close*100:0;return '<div id="wind-analysis-metrics">'+[['区间总收益',money(total),'元',total],['期末市值',money(close),'元',null],['基金数量',rows.length,'只',null],['区间收益率',pct(rate),'',rate],['正收益基金占比',positive.toFixed(1)+'%','',positive]].map(function(m){return '<div class="wind-analysis-metric"><span>'+m[0]+'</span><strong class="'+(m[3]==null?'':m[3]>=0?'up':'down')+'">'+m[1]+'<small>'+m[2]+'</small></strong></div>'}).join('')+'</div>'}
+ function income(rows){var names=[],totals={};rows.forEach(function(x){Object.keys(x.parts).forEach(function(k){if(names.indexOf(k)<0)names.push(k);totals[k]=(totals[k]||0)+x.parts[k]})});var max=Math.max.apply(null,names.map(function(k){return Math.abs(totals[k])}).concat([1]));return '<article class="wind-analysis-panel" id="wind-income-composition"><h2>收益来源构成</h2><p>按当前收益口径汇总各组成项目</p><div class="wind-income-parts">'+names.map(function(k,i){var v=totals[k];return '<div class="wind-income-part" data-income-part="'+esc(k)+'"><span>'+esc(k)+'</span><span class="wind-income-track"><i style="width:'+Math.max(2,Math.abs(v)/max*100)+'%;background:'+(v<0?'#16836f':partColors[i%partColors.length])+'"></i></span><strong>'+money(v)+'</strong></div>'}).join('')+'</div></article>'}
+ function ranking(rows){var sorted=rows.slice().sort(function(a,b){return b.total-a.total}),max=Math.max.apply(null,sorted.map(function(x){return Math.abs(x.total)}).concat([1]));return '<article class="wind-analysis-panel" id="wind-contribution-ranking"><h2>基金收益贡献排名</h2><p>识别主要贡献基金与收益拖累基金</p><div class="wind-contribution-list">'+sorted.slice(0,8).map(function(x){return '<div class="wind-contribution-row"><span title="'+esc(x.name)+'">'+esc(x.name)+'</span><span class="wind-contribution-track"><i style="width:'+Math.max(2,Math.abs(x.total)/max*100)+'%;background:'+(x.total<0?'#16836f':'#d3a125')+'"></i></span><strong class="'+(x.total>=0?'up':'down')+'">'+money(x.total)+'</strong></div>'}).join('')+'</div></article>'}
+ function scatter(rows){var W=560,H=210,L=48,R=18,T=15,B=34,maxX=Math.max.apply(null,rows.map(function(x){return x.close}).concat([1])),rates=rows.map(function(x){return x.close?x.total/x.close*100:0}),minY=Math.min.apply(null,rates.concat([0])),maxY=Math.max.apply(null,rates.concat([0]));if(maxY===minY){maxY+=1;minY-=1}var x=function(v){return L+v/maxX*(W-L-R)},y=function(v){return T+(maxY-v)/(maxY-minY)*(H-T-B)},svg='<svg viewBox="0 0 '+W+' '+H+'" aria-label="规模收益散点图">';for(var i=0;i<4;i++){var gy=T+i*(H-T-B)/3,val=maxY-i*(maxY-minY)/3;svg+='<line class="wind-chart-grid" x1="'+L+'" y1="'+gy+'" x2="'+(W-R)+'" y2="'+gy+'"/><text class="wind-chart-axis" x="'+(L-5)+'" y="'+(gy+3)+'" text-anchor="end">'+val.toFixed(2)+'%</text>'}rows.forEach(function(item,i){var rate=rates[i],radius=5+Math.sqrt(item.close/maxX)*9;svg+='<circle data-fund="'+esc(item.code||item.name)+'" cx="'+x(item.close)+'" cy="'+y(rate)+'" r="'+radius+'"><title>'+esc(item.name)+'｜期末市值 '+money(item.close)+'｜收益率 '+pct(rate)+'</title></circle>'});svg+='<text class="wind-chart-axis" x="'+L+'" y="'+(H-8)+'">0</text><text class="wind-chart-axis" x="'+(W-R)+'" y="'+(H-8)+'" text-anchor="end">期末市值 '+money(maxX)+'</text></svg>';return '<article class="wind-analysis-panel" id="wind-scale-return-scatter"><h2>规模—收益分布</h2><p>气泡越大代表期末持仓规模越高</p><div class="wind-scatter">'+svg+'</div></article>'}
+ function secondary(rows){var map={};rows.forEach(function(x){var k=x.secondary||'未分类';if(!map[k])map[k]={close:0,total:0};map[k].close+=x.close;map[k].total+=x.total});var items=Object.keys(map).map(function(k){return {name:k,close:map[k].close,total:map[k].total}}).sort(function(a,b){return b.close-a.close}),max=Math.max.apply(null,items.map(function(x){return x.close}).concat([1]));return '<article class="wind-analysis-panel" id="wind-secondary-distribution"><h2>Wind二级分类分布</h2><p>按期末持仓市值展示分类结构</p><div class="wind-secondary-list">'+items.map(function(x){return '<div class="wind-secondary-row" data-secondary-bar="'+esc(x.name)+'"><span title="'+esc(x.name)+'">'+esc(x.name)+'</span><span class="wind-secondary-track"><i style="width:'+Math.max(2,x.close/max*100)+'%"></i></span><strong>'+money(x.close)+'</strong></div>'}).join('')+'</div></article>'}
+ function enhance(){var section=document.getElementById('wind-income-detail');if(!section||section.querySelector('#wind-analysis-suite'))return;var rows=readRows(section);if(!rows.length)return;section.classList.add('wind-analysis-enhanced');var suite=document.createElement('div');suite.id='wind-analysis-suite';suite.innerHTML=metrics(rows)+'<div class="wind-analysis-grid">'+income(rows)+ranking(rows)+scatter(rows)+secondary(rows)+'</div>';var old=section.querySelector('.category-detail-metrics');if(old)old.insertAdjacentElement('afterend',suite);else{var table=section.querySelector('table');(table&&table.closest('article,section,div')||section).insertAdjacentElement('beforebegin',suite)}}
+ function schedule(){if(scheduled)return;scheduled=true;setTimeout(function(){scheduled=false;enhance()},0)}
+ new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
+})();
+</script>
+<!-- WIND_ANALYSIS_CHARTS_END -->
 </body></html>
 
